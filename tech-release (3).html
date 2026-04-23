@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Release — Lab Manager · FCF USP</title>
+<link rel="icon" type="image/png" href="./icono-peq.png">
+<link rel="apple-touch-icon" href="./icono-peq.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tech Release">
+<meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#eef2f7;--surface:#ffffff;--surface2:#f4f7fb;--surface3:#eaf0f8;
+  --border:#dde5ef;--border2:#c8d6e8;--text:#0d1b2a;--text-muted:#5a7089;--text-dim:#a0b4c8;
+  --blue:#1a7fe8;--blue-mid:#0e62c0;--blue-light:#dbeeff;--blue-glow:rgba(26,127,232,0.10);--blue-glow2:rgba(26,127,232,0.18);
+  --green:#0fba72;--green-mid:#09966e;--green-light:#d3f5e8;--green-glow:rgba(15,186,114,0.12);
+  --amber:#f5a623;--amber-light:#fff3d8;--red:#e84040;--red-light:#ffe0e0;
+  --purple:#7c5ff0;--purple-light:#ede9ff;--teal:#00bcd4;--teal-light:#e0f8fb;
+  --sidebar-w:252px;--radius:12px;--radius-sm:8px;--radius-lg:18px;
+  --shadow:0 2px 12px rgba(13,27,42,0.08);--shadow-md:0 6px 28px rgba(13,27,42,0.12);--shadow-lg:0 18px 56px rgba(13,27,42,0.16);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.spinner{width:22px;height:22px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .65s linear infinite;flex-shrink:0}
+
+/* AUTH */
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px;position:relative;overflow:hidden}
+.auth-bg{position:absolute;inset:0;pointer-events:none}
+.auth-bg::before{content:'';position:absolute;top:-120px;right:-80px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(26,127,232,0.12) 0%,transparent 68%)}
+.auth-bg::after{content:'';position:absolute;bottom:-100px;left:-60px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(15,186,114,0.10) 0%,transparent 68%)}
+.auth-dots{position:absolute;inset:0;background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;opacity:.8}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:44px 40px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);position:relative;z-index:1;animation:fadeUp .4s ease}
+.auth-logo{display:flex;align-items:center;gap:14px;margin-bottom:32px}
+.auth-icon{width:52px;height:52px;background:linear-gradient(135deg,var(--blue),var(--green));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 6px 20px rgba(26,127,232,0.35)}
+.auth-logo h1{font-size:22px;font-weight:800;letter-spacing:-.4px;color:var(--text)}
+.auth-logo p{font-size:10px;color:var(--text-muted);margin-top:1px;font-family:'IBM Plex Mono',monospace;letter-spacing:.3px}
+.role-tabs{display:flex;gap:6px;background:var(--surface2);border-radius:12px;padding:5px;margin-bottom:24px;border:1px solid var(--border)}
+.role-tab{flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;color:var(--text-muted);transition:all .18s;border:none;background:transparent;font-family:'Outfit',sans-serif}
+.role-tab.active{background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;box-shadow:0 3px 12px rgba(26,127,232,0.3)}
+
+/* FORMS */
+.form-group{margin-bottom:14px}
+label{display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+input,textarea,select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;padding:10px 13px;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow)}
+input::placeholder,textarea::placeholder{color:var(--text-dim)}
+input[type="file"]{padding:8px 13px;cursor:pointer}
+textarea{resize:vertical;min-height:80px}
+select option{background:var(--surface);color:var(--text)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius-sm);border:none;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--blue),#1266c4);color:#fff;box-shadow:0 2px 10px rgba(26,127,232,0.28)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,127,232,0.4)}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green-mid));color:#fff;box-shadow:0 2px 10px rgba(15,186,114,0.28)}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,186,114,0.4)}
+.btn-secondary{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger{background:transparent;color:var(--red);border:1.5px solid rgba(232,64,64,0.25)}
+.btn-danger:hover{background:var(--red-light)}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-xs{padding:3px 9px;font-size:11px;border-radius:6px}
+.btn-full{width:100%;justify-content:center}
+.err-msg{font-size:12px;color:var(--red);margin-bottom:12px;padding:10px 14px;background:var(--red-light);border-radius:var(--radius-sm);display:none;border:1px solid rgba(232,64,64,0.2)}
+
+/* APP LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;transition:transform .25s;box-shadow:2px 0 16px rgba(13,27,42,0.06)}
+.sidebar-brand{padding:22px 18px 18px;border-bottom:1px solid var(--border)}
+.sb-logo-row{display:flex;align-items:center;gap:12px}
+.sb-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--blue),var(--green));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 4px 12px rgba(26,127,232,0.3)}
+.sb-brand-name{font-size:16px;font-weight:800;letter-spacing:-.3px;color:var(--text)}
+.sb-brand-sub{font-size:9px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;letter-spacing:.3px;margin-top:1px}
+.sb-tagline{margin-top:10px;background:linear-gradient(90deg,var(--blue-light),var(--green-light));border-radius:8px;padding:6px 10px;font-size:10px;font-weight:600;color:var(--blue-mid);border:1px solid rgba(26,127,232,0.15)}
+.sidebar-user{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px}
+.s-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;color:#fff;box-shadow:0 3px 10px rgba(26,127,232,0.25)}
+.s-avatar.prof-av{background:linear-gradient(135deg,var(--amber),#e07b00);box-shadow:0 3px 10px rgba(245,166,35,0.3)}
+.sb-user-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-user-role{font-size:10px;color:var(--text-muted)}
+.sidebar-nav{flex:1;padding:10px 10px;overflow-y:auto}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--text-dim);padding:12px 10px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:var(--text-muted);transition:all .14s;position:relative;user-select:none;margin-bottom:2px}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--blue-glow2);color:var(--blue);font-weight:700;border:1.5px solid rgba(26,127,232,0.2)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:18px;text-align:center}
+.sidebar-footer{padding:10px;border-top:1px solid var(--border)}
+
+/* MAIN */
+.main{flex:1;margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(13,27,42,0.05)}
+.topbar-title{font-size:17px;font-weight:800;letter-spacing:-.3px}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.content{padding:28px;flex:1}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-muted);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+
+/* MEETING BANNER */
+.meeting-banner{background:linear-gradient(135deg,#0a4f9a 0%,#1a7fe8 45%,#0fba72 100%);border-radius:20px;padding:28px 32px;margin-bottom:26px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(26,127,232,0.3);color:#fff}
+.meeting-banner::after{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none}
+.mb-badge{display:inline-block;background:rgba(255,255,255,0.22);padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;backdrop-filter:blur(4px)}
+.mb-title{font-size:24px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.mb-date{font-size:13px;opacity:.85;margin-top:3px}
+.mb-desc{font-size:11px;opacity:.65;margin-top:5px}
+.mb-days-box{text-align:center;flex-shrink:0;margin-left:32px;background:rgba(255,255,255,0.15);border-radius:16px;padding:16px 24px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2)}
+.mb-num{font-size:54px;font-weight:900;line-height:1;font-family:'IBM Plex Mono',monospace;color:#fff}
+.mb-unit{font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:1.5px;margin-top:3px;font-weight:600}
+.meeting-banner.empty{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1.5px dashed var(--border2);box-shadow:none}
+.meeting-banner.empty *{color:var(--text-muted)}
+.meeting-banner.empty .mb-num{color:var(--text-dim)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .2s;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.stat-card-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+.stat-val{font-size:34px;font-weight:800;font-family:'IBM Plex Mono',monospace;line-height:1;margin-top:8px}
+.stat-lbl{font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:500}
+.stat-emoji{font-size:22px;position:absolute;top:16px;right:16px}
+
+/* LAYOUTS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid-60-40{display:grid;grid-template-columns:1.55fr 1fr;gap:20px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--surface2)}
+th{color:var(--text-muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;padding:11px 14px;text-align:left;border-bottom:1.5px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid rgba(221,229,239,0.7);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(26,127,232,0.025)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-blue{background:var(--blue-light);color:var(--blue-mid);border:1px solid rgba(26,127,232,0.25)}
+.badge-green{background:var(--green-light);color:var(--green-mid);border:1px solid rgba(15,186,114,0.25)}
+.badge-amber{background:var(--amber-light);color:#cc7a00;border:1px solid rgba(245,166,35,0.3)}
+.badge-red{background:var(--red-light);color:var(--red);border:1px solid rgba(232,64,64,0.25)}
+.badge-grey{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+.badge-purple{background:var(--purple-light);color:var(--purple);border:1px solid rgba(124,95,240,0.25)}
+.badge-teal{background:var(--teal-light);color:#00838f;border:1px solid rgba(0,188,212,0.25)}
+
+/* STATUS PILLS */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;border:none;font-family:'Outfit',sans-serif;white-space:nowrap}
+.status-todo{background:var(--surface2);color:var(--text-muted);border:1.5px solid var(--border)}
+.status-todo:hover{border-color:var(--blue);color:var(--blue)}
+.status-progress{background:var(--blue-light);color:var(--blue-mid);border:1.5px solid rgba(26,127,232,0.3)}
+.status-progress:hover{background:#c5e3ff}
+.status-done{background:var(--green-light);color:var(--green-mid);border:1.5px solid rgba(15,186,114,0.3)}
+.status-done:hover{background:#b8f0d8}
+
+/* MESSAGES */
+.msg-list{display:flex;flex-direction:column;gap:8px}
+.msg-item{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;cursor:pointer;transition:all .14s}
+.msg-item:hover{border-color:var(--blue);background:var(--surface);box-shadow:var(--shadow)}
+.msg-item.unread{border-left:3px solid var(--blue);background:var(--blue-glow)}
+.msg-item.urgent-msg{border-left:3px solid var(--red);background:var(--red-light)}
+.msg-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.msg-from{font-size:13px;font-weight:700}
+.msg-date{font-size:11px;color:var(--text-muted)}
+.msg-subject{font-size:13px}
+.msg-preview{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+/* THREAD */
+.thread-list{display:flex;flex-direction:column;gap:10px;padding:4px 0;max-height:340px;overflow-y:auto}
+.thread-bubble{padding:12px 16px;border-radius:12px;max-width:84%}
+.thread-bubble.mine{background:var(--blue-glow2);border:1.5px solid rgba(26,127,232,0.2);margin-left:auto}
+.thread-bubble.theirs{background:var(--surface2);border:1.5px solid var(--border)}
+.bubble-author{font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px}
+.bubble-text{font-size:13px;white-space:pre-wrap;line-height:1.55}
+.bubble-time{font-size:10px;color:var(--text-dim);margin-top:5px;text-align:right}
+
+/* TASKS */
+.task-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:flex-start;gap:14px;margin-bottom:10px;transition:all .15s;box-shadow:var(--shadow)}
+.task-item:hover{border-color:var(--border2);box-shadow:var(--shadow-md)}
+.task-item.is-done{opacity:.65}
+.task-body{flex:1;min-width:0}
+.task-title{font-size:14px;font-weight:700}
+.task-title.crossed{text-decoration:line-through;color:var(--text-muted)}
+.task-desc{font-size:12px;color:var(--text-muted);margin-top:4px}
+.task-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+
+/* PROGRESS */
+.progress{height:4px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:3px;transition:width .5s}
+.progress-fill.amber{background:linear-gradient(90deg,var(--amber),#e07b00)}
+.progress-fill.green{background:linear-gradient(90deg,var(--green),var(--green-mid))}
+
+/* CALENDAR */
+.cal-item{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:20px;transition:all .15s;box-shadow:var(--shadow)}
+.cal-item:hover{border-color:var(--blue);box-shadow:var(--shadow-md)}
+.cal-item.past{border-left-color:var(--border2);opacity:.55}
+.cal-date-box{text-align:center;min-width:48px;background:var(--blue-light);border-radius:10px;padding:6px 4px}
+.cal-day{font-size:26px;font-weight:800;color:var(--blue);font-family:'IBM Plex Mono',monospace;line-height:1}
+.cal-month{font-size:9px;text-transform:uppercase;color:var(--blue-mid);letter-spacing:.6px;font-weight:700}
+.cal-item.past .cal-date-box{background:var(--surface2)}
+.cal-item.past .cal-day{color:var(--text-dim)}
+.cal-item.past .cal-month{color:var(--text-dim)}
+.cal-body{flex:1}
+.cal-title{font-size:14px;font-weight:700}
+.cal-time{font-size:12px;color:var(--text-muted);margin-top:2px}
+.cal-desc{font-size:12px;color:var(--text-muted);margin-top:5px}
+
+/* NOTEBOOK */
+.nb-entry{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:14px;transition:border-color .15s;box-shadow:var(--shadow)}
+.nb-entry:hover{border-color:var(--border2);box-shadow:var(--shadow-md)}
+.nb-entry-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px}
+.nb-meta{font-size:11px;color:var(--text-muted);font-family:'IBM Plex Mono',monospace}
+.nb-title{font-size:16px;font-weight:700;margin-bottom:10px}
+.nb-body{font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap}
+.nb-image{max-width:100%;border-radius:var(--radius-sm);margin:12px 0;display:block;max-height:420px;object-fit:contain;background:var(--surface2);border:1px solid var(--border)}
+.nb-annotation{border-left:3px solid var(--green);padding:8px 14px;color:var(--text-muted);font-size:12px;font-style:italic;margin-top:12px;background:var(--green-glow);border-radius:0 6px 6px 0}
+.nb-empty{text-align:center;padding:80px 20px;color:var(--text-dim)}
+.nb-empty-icon{font-size:48px;margin-bottom:16px;opacity:.3}
+
+/* PROF NOTES */
+.prof-note-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:14px;box-shadow:var(--shadow);transition:border-color .15s}
+.prof-note-card:hover{border-color:var(--border2);box-shadow:var(--shadow-md)}
+.prof-note-card.pinned{border-left:4px solid var(--amber);background:linear-gradient(135deg,var(--amber-light),var(--surface))}
+.prof-note-card.pinned .pn-pin{color:var(--amber)}
+.pn-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.pn-title{font-size:15px;font-weight:800;color:var(--text)}
+.pn-meta{font-size:10px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace}
+.pn-body{font-size:13px;line-height:1.75;color:var(--text-muted);white-space:pre-wrap}
+.pn-pin{font-size:14px;opacity:.5;margin-right:4px}
+
+/* STUDENTS */
+.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.student-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:22px 18px;text-align:center;cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
+.student-card:hover{border-color:var(--blue);transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.student-av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;margin:0 auto 14px;color:#fff;box-shadow:0 4px 14px rgba(26,127,232,0.3)}
+.student-name{font-size:14px;font-weight:700}
+.student-sub{font-size:11px;color:var(--text-muted);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+.student-stats{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,27,42,0.55);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;animation:fadeIn .15s ease;backdrop-filter:blur(3px)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .22s ease}
+.modal-lg{max-width:700px}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:22px;padding-bottom:16px;border-bottom:1.5px solid var(--border);letter-spacing:-.3px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:var(--surface2);border-radius:10px;padding:4px;width:fit-content;margin-bottom:18px;border:1px solid var(--border)}
+.tab{padding:7px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;color:var(--text-muted);transition:all .14s;user-select:none}
+.tab.active{background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;box-shadow:0 2px 8px rgba(26,127,232,0.3)}
+
+/* STUDENT TABS */
+.stud-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.stud-tab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text-muted);background:var(--surface2);border:1.5px solid var(--border);transition:all .14s;user-select:none}
+.stud-tab:hover{border-color:var(--blue);color:var(--blue)}
+.stud-tab.active{background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(26,127,232,0.3)}
+
+/* INFO BANNER */
+.info-banner{border-radius:var(--radius-sm);padding:11px 16px;margin-bottom:16px;font-size:13px;display:flex;align-items:center;gap:9px;border:1px solid}
+.info-banner.amber{background:var(--amber-light);border-color:rgba(245,166,35,0.35);color:#8a5a00}
+.info-banner.blue{background:var(--blue-light);border-color:rgba(26,127,232,0.25);color:var(--blue-mid)}
+.info-banner.green{background:var(--green-light);border-color:rgba(15,186,114,0.25);color:var(--green-mid)}
+.info-banner.red{background:var(--red-light);border-color:rgba(232,64,64,0.25);color:var(--red)}
+
+/* PROF TASK VIEW */
+.student-task-section{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow)}
+.student-task-header{padding:14px 20px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.student-task-body{padding:16px 20px}
+.student-task-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(221,229,239,0.5)}
+.student-task-row:last-child{border-bottom:none}
+
+/* URGENT STRIP */
+.urgent-strip{background:linear-gradient(135deg,var(--red),#c0392b);border-radius:var(--radius-sm);padding:11px 16px;margin-bottom:16px;color:#fff;font-size:13px;display:flex;align-items:center;gap:9px;font-weight:600;box-shadow:0 4px 16px rgba(232,64,64,0.3)}
+
+/* REQUEST / INCIDENT CARDS */
+.req-card{background:var(--surface);border:1.5px solid var(--border);border-left:4px solid var(--blue);border-radius:var(--radius);padding:16px 20px;margin-bottom:10px;transition:all .15s;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px}
+.req-card:hover{border-color:var(--blue);box-shadow:var(--shadow-md)}
+.req-card.req-received{border-left-color:var(--green)}
+.req-card-body{flex:1}
+.req-card-name{font-size:14px;font-weight:700;color:var(--text)}
+.req-card-meta{font-size:11px;color:var(--text-muted);margin-top:3px}
+.req-card-note{font-size:12px;color:var(--text-muted);margin-top:6px;font-style:italic}
+.inc-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;transition:all .15s;box-shadow:var(--shadow)}
+.inc-card:hover{box-shadow:var(--shadow-md)}
+.inc-card.inc-open{border-left:4px solid var(--red)}
+.inc-card.inc-progress{border-left:4px solid var(--amber)}
+.inc-card.inc-resolved{border-left:4px solid var(--green);opacity:.65}
+.inc-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.inc-title{font-size:15px;font-weight:700}
+.inc-meta{font-size:11px;color:var(--text-muted);margin-top:3px}
+.inc-desc{font-size:13px;color:var(--text-muted);margin-bottom:10px;line-height:1.55}
+.inc-resolution{background:var(--green-glow);border:1px solid rgba(15,186,114,0.25);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green-mid);margin-top:8px}
+
+/* REAGENT STATUS */
+.r-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .15s}
+.r-ok{background:var(--green-light);color:var(--green-mid);border:1px solid rgba(15,186,114,0.3)}
+.r-low{background:var(--amber-light);color:#9a6000;border:1px solid rgba(245,166,35,0.3)}
+.r-critical{background:var(--red-light);color:var(--red);border:1px solid rgba(232,64,64,0.3)}
+.r-unknown{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+
+/* UTILITY */
+.hidden{display:none!important}
+.flex{display:flex}.flex-center{display:flex;align-items:center}.flex-between{display:flex;align-items:center;justify-content:space-between}
+.gap-4{gap:4px}.gap-6{gap:6px}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
+.mb-4{margin-bottom:4px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}
+.text-muted{color:var(--text-muted)}.text-blue{color:var(--blue)}.text-green{color:var(--green)}.text-red{color:var(--red)}.text-amber{color:var(--amber)}
+.text-sm{font-size:12px}.text-xs{font-size:11px}.text-center{text-align:center}
+.text-mono{font-family:'IBM Plex Mono',monospace}.fw-700{font-weight:700}.fw-800{font-weight:800}
+hr.sep{border:none;border-top:1.5px solid var(--border);margin:18px 0}
+.search-wrap{position:relative}
+.search-wrap input{padding-left:40px}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:15px;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;border:1.5px solid var(--border);border-radius:8px}
+.hamburger span{width:20px;height:2px;background:var(--text-muted);border-radius:2px;transition:all .2s}
+@media(max-width:880px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamburger{display:flex}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-60-40{grid-template-columns:1fr}
+  .grid-2{grid-template-columns:1fr}
+  .content{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setupScreen" class="auth-screen hidden">
+  <div class="auth-bg"></div><div class="auth-dots"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-icon" style="background:none;box-shadow:none;padding:0;overflow:hidden"><img src="./icono.gran.png" alt="Tech Release" style="width:52px;height:52px;object-fit:contain;border-radius:14px" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span style="display:none;font-size:28px">🔬</span></div>
+      <div><h1>Tech Release</h1><p>PRIMEIRO ARRANQUE · FCF USP</p></div>
+    </div>
+    <div class="info-banner green" style="margin-bottom:20px">🎉 Bem-vinda! Configure a sua conta de professora para começar.</div>
+    <div class="form-group"><label>📛 Nome Completo</label><input type="text" id="setupName" placeholder="Prof.ª Fernanda Boni"></div>
+    <div class="form-group"><label>👤 Nome de Utilizador</label><input type="text" id="setupUser" placeholder="profa.fernanda"></div>
+    <div class="form-group"><label>🔒 Senha</label><input type="password" id="setupPass" placeholder="Mínimo 6 caracteres"></div>
+    <div class="form-group"><label>🔒 Confirmar Senha</label><input type="password" id="setupPass2" placeholder="Repita a senha" onkeydown="if(event.key==='Enter')doSetup()"></div>
+    <div id="setupErr" class="err-msg"></div>
+    <button class="btn btn-primary btn-full" onclick="doSetup()" style="height:46px;font-size:15px">🚀 Criar Conta e Começar</button>
+    <p style="font-size:11px;color:var(--text-dim);text-align:center;margin-top:14px">Esta configuração só aparece uma vez.<br>A senha é guardada de forma segura (SHA-256).</p>
+  </div>
+</div>
+
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="authScreen" class="auth-screen hidden">
+  <div class="auth-bg"></div><div class="auth-dots"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-icon" style="background:none;box-shadow:none;padding:0;overflow:hidden"><img src="./icono.gran.png" alt="Tech Release" style="width:52px;height:52px;object-fit:contain;border-radius:14px" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span style="display:none;font-size:28px">🔬</span></div>
+      <div><h1>Tech Release</h1><p>LAB MANAGER · FCF USP</p></div>
+    </div>
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="setRole('professor')">👩‍🔬 Professora</button>
+      <button class="role-tab" onclick="setRole('student')">🎓 Aluno(a)</button>
+    </div>
+    <div class="form-group"><label>👤 Utilizador</label><input type="text" id="loginUser" placeholder="nome.utilizador" autocomplete="username"></div>
+    <div class="form-group"><label>🔒 Senha</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div id="loginErr" class="err-msg"></div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" style="height:46px;font-size:15px">🚀 Entrar no Lab</button>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="appShell" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sb-logo-row">
+        <div class="sb-icon" style="background:none;box-shadow:none;padding:0;overflow:hidden"><img src="./icono-peq.png" alt="Tech Release" style="width:40px;height:40px;object-fit:contain;border-radius:11px" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span style="display:none;font-size:20px">🔬</span></div>
+        <div><div class="sb-brand-name">Tech Release</div><div class="sb-brand-sub">LAB MANAGER · FCF USP</div></div>
+      </div>
+      <div class="sb-tagline">🔬 Laboratório de Farmácia</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="s-avatar" id="sbAvatar"></div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-user-name" id="sbName"></div>
+        <div class="sb-user-role" id="sbRole"></div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">📋 Principal</div>
+      <div class="nav-item active" data-view="dashboard" onclick="navigate('dashboard');closeSidebar()"><span class="nav-icon">🏠</span> Dashboard</div>
+      <div class="nav-item" data-view="reagents" onclick="navigate('reagents');closeSidebar()"><span class="nav-icon">⚗️</span> Reactivos</div>
+      <div class="nav-item" data-view="messages" onclick="navigate('messages');closeSidebar()"><span class="nav-icon">✉️</span> Mensagens<span class="nav-badge hidden" id="msgBadge"></span></div>
+      <div class="nav-section">🛠️ Ferramentas</div>
+      <div class="nav-item" data-view="calendar" onclick="navigate('calendar');closeSidebar()"><span class="nav-icon">📅</span> Calendário</div>
+      <div class="nav-item" data-view="tasks" onclick="navigate('tasks');closeSidebar()"><span class="nav-icon">✅</span> Tarefas</div>
+      <div class="nav-item" data-view="requests" onclick="navigate('requests');closeSidebar()"><span class="nav-icon">📦</span> Material em Falta<span class="nav-badge hidden" id="reqBadge"></span></div>
+      <div class="nav-item" data-view="incidents" onclick="navigate('incidents');closeSidebar()"><span class="nav-icon">🔧</span> Avarias<span class="nav-badge hidden" id="incBadge"></span></div>
+      <div class="nav-item prof-only hidden" data-view="profnotes" onclick="navigate('profnotes');closeSidebar()"><span class="nav-icon">📝</span> Minhas Notas</div>
+      <div class="nav-item prof-only hidden" data-view="notebooks" onclick="navigate('notebooks');closeSidebar()"><span class="nav-icon">📓</span> Cadernos</div>
+      <div class="nav-item prof-only hidden" data-view="students" onclick="navigate('students');closeSidebar()"><span class="nav-icon">👥</span> Alunos</div>
+      <div class="nav-item student-only hidden" data-view="notebook" onclick="navigate('notebook');closeSidebar()"><span class="nav-icon">📓</span> Caderno Lab</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item" onclick="doLogout()"><span class="nav-icon">🚪</span> Terminar Sessão</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="hamburger" onclick="toggleSidebar()" id="hamburger"><span></span><span></span><span></span></div>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-actions" id="topbarActions"></div>
+    </div>
+    <div class="content" id="mainContent"></div>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// Substitua os valores abaixo com os dados do seu projeto Firebase.
+//
+// REGRAS FIRESTORE (Firebase Console → Firestore → Rules):
+//   rules_version = '2';
+//   service cloud.firestore {
+//     match /databases/{database}/documents {
+//       match /{document=**} {
+//         allow read, write: if true;
+//       }
+//     }
+//   }
+// ═══════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "AIzaSyBJ_NVA1dtCXunO60x3hUuIdKREFgcj0no",
+  authDomain:        "tech-release-fda95.firebaseapp.com",
+  projectId:         "tech-release-fda95",
+  storageBucket:     "tech-release-fda95.firebasestorage.app",
+  messagingSenderId: "377082633783",
+  appId:             "1:377082633783:web:dff3d95f2e69ad250729b2"
+};
+
+firebase.initializeApp(firebaseConfig);
+const FS = firebase.firestore();
+
+// ═══════════════════════════════════════════════════════════════
+// SHA-256
+// ═══════════════════════════════════════════════════════════════
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FIRESTORE HELPERS
+// ═══════════════════════════════════════════════════════════════
+async function fsGet(col, id) {
+  const doc = await FS.collection(col).doc(id).get();
+  return doc.exists ? {id: doc.id, ...doc.data()} : null;
+}
+async function fsGetAll(col, ...wheres) {
+  let q = FS.collection(col);
+  for (const [f, op, v] of wheres) q = q.where(f, op, v);
+  const snap = await q.get();
+  return snap.docs.map(d => ({id: d.id, ...d.data()}));
+}
+async function fsAdd(col, data) {
+  const ref = await FS.collection(col).add(data);
+  return ref.id;
+}
+async function fsSet(col, id, data) {
+  await FS.collection(col).doc(id).set(data);
+}
+async function fsUpdate(col, id, data) {
+  await FS.collection(col).doc(id).update(data);
+}
+async function fsDel(col, id) {
+  await FS.collection(col).doc(id).delete();
+}
+async function fsBatch(ops) {
+  const batch = FS.batch();
+  for (const op of ops) {
+    const ref = FS.collection(op.col).doc(op.id);
+    if (op.type === 'set') batch.set(ref, op.data);
+    else if (op.type === 'delete') batch.delete(ref);
+    else if (op.type === 'update') batch.update(ref, op.data);
+  }
+  await batch.commit();
+}
+
+const getUsers     = ()  => fsGetAll('users');
+const getAllTasks   = ()  => fsGetAll('tasks');
+const getMyTasks   = uid => fsGetAll('tasks',   ['owner','==',uid]);
+const getNbEntries = uid => fsGetAll('nb_entries', ['owner','==',uid]);
+const getMeetings  = ()  => fsGetAll('meetings');
+const getReagents  = ()  => fsGetAll('reagents');
+const getRequests  = ()  => fsGetAll('requests');
+const getIncidents = ()  => fsGetAll('incidents');
+const getProfNotes = ()  => fsGetAll('profnotes');
+
+async function getMessages() {
+  const uid = CU.id;
+  const [q1, q2, q3] = await Promise.all([
+    FS.collection('messages').where('to','==','all').get(),
+    FS.collection('messages').where('to','==',uid).get(),
+    FS.collection('messages').where('from','==',uid).get(),
+  ]);
+  const seen = new Set(), result = [];
+  for (const snap of [q1, q2, q3])
+    for (const doc of snap.docs)
+      if (!seen.has(doc.id)) { seen.add(doc.id); result.push({id: doc.id, ...doc.data()}); }
+  return result;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════════════
+function setLoading(msg='Carregando...') {
+  document.getElementById('mainContent').innerHTML =
+    `<div style="display:flex;align-items:center;justify-content:center;height:200px;gap:14px;color:var(--text-muted)">
+      <div class="spinner"></div><span style="font-size:15px;font-weight:600">${msg}</span></div>`;
+}
+function setContent(h)  { document.getElementById('mainContent').innerHTML = h; }
+function setActions(h)  { document.getElementById('topbarActions').innerHTML = h; }
+function showModal(h)   { document.getElementById('modalRoot').innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)closeModal()">${h}</div>`; }
+function closeModal()   { document.getElementById('modalRoot').innerHTML = ''; }
+function showErr(id,msg){ const el=document.getElementById(id); el.textContent=msg; el.style.display='block'; }
+function escapeHtml(t)  { return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>'); }
+
+// ═══════════════════════════════════════════════════════════════
+// REAGENTS SEED DATA
+// ═══════════════════════════════════════════════════════════════
+const INIT_REAGENTS=[
+  {num:1,cls:'Polímero',name:'Eudragit L100',qty:'2 potes cheios',loc:'Local 2',notes:'',status:'ok'},
+  {num:2,cls:'Polímero',name:'Eudragit S100',qty:'1 pote cheio, 1 pela metade',loc:'Local 2',notes:'',status:'ok'},
+  {num:3,cls:'Polímero',name:'Carbopol Ultrez 10 NF',qty:'2 potes cheios',loc:'Local 2',notes:'',status:'ok'},
+  {num:4,cls:'Polímero',name:'Goma Gelana',qty:'2 potes cheios',loc:'Local 2',notes:'',status:'ok'},
+  {num:5,cls:'Polímero',name:'Carbopol 971P NF',qty:'2 potes cheios',loc:'Local 2',notes:'',status:'ok'},
+  {num:6,cls:'Polímero',name:'Carbopol 71G NF',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:7,cls:'Polímero',name:'Noveon AA-1 Polycarbophil',qty:'2 potes cheios',loc:'Local 2',notes:'',status:'ok'},
+  {num:8,cls:'Polímero',name:'Eudragit E PO',qty:'1 pote, pouca quantidade',loc:'',notes:'',status:'low'},
+  {num:9,cls:'Polímero',name:'Alginato CR8133',qty:'Quantidade mediana',loc:'',notes:'',status:'ok'},
+  {num:10,cls:'Polímero',name:'Alginato LF10160',qty:'Quantidade mediana',loc:'',notes:'',status:'ok'},
+  {num:11,cls:'Polímero',name:'Pectina',qty:'1 pote, pela metade',loc:'',notes:'',status:'ok'},
+  {num:12,cls:'Excipiente',name:'Glicerol',qty:'1 frasco, pouca quantidade',loc:'',notes:'',status:'low'},
+  {num:13,cls:'Excipiente',name:'Gelatina',qty:'1 pacote cheio',loc:'',notes:'',status:'ok'},
+  {num:14,cls:'Polímero',name:'Hidroxipropil Celulose (HPC)',qty:'1 pote, pela metade',loc:'',notes:'',status:'ok'},
+  {num:15,cls:'Polímero',name:'HPMC',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:16,cls:'Polímero',name:'HPMCP',qty:'1 embalagem cheia',loc:'',notes:'',status:'ok'},
+  {num:17,cls:'Polímero',name:'HPMCAS',qty:'1 embalagem cheia',loc:'',notes:'',status:'ok'},
+  {num:18,cls:'Ácido',name:'Sodium Deoxycholate',qty:'Quantidade mediana',loc:'',notes:'',status:'ok'},
+  {num:19,cls:'Ácido',name:'Ácido 5-aminosalicílico',qty:'Pouca quantidade',loc:'',notes:'',status:'low'},
+  {num:20,cls:'Ácido',name:'Ácido Oleico',qty:'1 frasco cheio',loc:'',notes:'',status:'ok'},
+  {num:21,cls:'Ácido',name:'EDTA',qty:'Cheio',loc:'',notes:'',status:'ok'},
+  {num:22,cls:'Ácido',name:'Ácido Acético',qty:'—',loc:'Campana',notes:'🔴 Manter na campana',status:'ok'},
+  {num:23,cls:'Base',name:'NaOH',qty:'Quantidade mediana',loc:'',notes:'',status:'ok'},
+  {num:24,cls:'Sal',name:'NaCl',qty:'1 pote com 5 kg',loc:'Armário grande',notes:'',status:'ok'},
+  {num:25,cls:'Sal',name:'KCl',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:26,cls:'Sal',name:'Fosfato de Potássio Dibásico',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:27,cls:'Sal',name:'Potássio Di-hidrogenofosfato',qty:'1 pote, pouca quantidade',loc:'',notes:'',status:'low'},
+  {num:28,cls:'Sal',name:'Di-hidrogenofosfato de Sódio Monohidratado',qty:'2 potes cheios',loc:'',notes:'',status:'ok'},
+  {num:29,cls:'Sal',name:'Iodeto de Potássio',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:30,cls:'Sal',name:'Acetato de Sódio Trihidratado',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:31,cls:'Sal',name:'Hidróxido de Tetrametilamônio',qty:'2 frascos fechados',loc:'',notes:'',status:'ok'},
+  {num:32,cls:'Sal',name:'Sódio Di-hidrogenofosfato Dihidrato',qty:'2 potes cheios + 1 com pouco',loc:'',notes:'',status:'ok'},
+  {num:33,cls:'Sal',name:'Meta-bissulfito de Sódio',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:34,cls:'Sal',name:'Carbonato de Potássio',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:35,cls:'Sal',name:'Di-sódio Hidrogenofosfato Dihidratado',qty:'1 pote, pouca quantidade',loc:'',notes:'',status:'low'},
+  {num:36,cls:'Sal',name:'Fosfato de Sódio Monobásico Monohidratado',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:37,cls:'Sal',name:'Cloreto de Alumínio',qty:'1 pote cheio',loc:'',notes:'',status:'ok'},
+  {num:38,cls:'Ácido',name:'Ácido Hialurônico',qty:'1 pote pequeno, pouca quantidade',loc:'',notes:'',status:'low'},
+  {num:39,cls:'Aminoácido',name:'L-Glutamina',qty:'1 pote meio cheio',loc:'',notes:'',status:'ok'},
+  {num:40,cls:'Tampão',name:'Buffer Solution',qty:'1 frasco fechado, pouca qty',loc:'',notes:'',status:'low'},
+  {num:41,cls:'Tampão',name:'Antimoniato de Potássio',qty:'1 frasco fechado, 500 mL',loc:'',notes:'',status:'ok'},
+  {num:42,cls:'Tampão',name:'Fosfato Dissódico / Fosfato de Potássio Monobásico',qty:'1 frasco fechado, 500 mL',loc:'',notes:'',status:'ok'},
+  {num:43,cls:'Tampão',name:'Fosfato de Amônio Monobásico',qty:'1 frasco fechado, 500 mL',loc:'',notes:'',status:'ok'},
+  {num:44,cls:'Sal',name:'Fosfato de Potássio Dibásico Anidro',qty:'2 pacotes 5g fechados',loc:'',notes:'',status:'ok'},
+  {num:45,cls:'Fármaco',name:'Silver Sulfadiazine',qty:'1 pacote fechado',loc:'',notes:'',status:'ok'},
+  {num:46,cls:'Corante',name:'Corante Amarelo',qty:'1 pacote fechado',loc:'',notes:'',status:'ok'},
+  {num:47,cls:'Corante',name:'Corante Vermelho',qty:'1 frasco fechado',loc:'',notes:'',status:'ok'},
+  {num:48,cls:'Corante',name:'Corante Azul',qty:'1 frasco cheio',loc:'',notes:'',status:'ok'},
+  {num:49,cls:'Flavorizante',name:'Masking Flavour',qty:'1 frasco fechado',loc:'',notes:'',status:'ok'},
+  {num:50,cls:'Fármaco',name:'Cetoconazol',qty:'1 frasco fechado',loc:'',notes:'',status:'ok'},
+  {num:51,cls:'Solvente',name:'Propilenglicol',qty:'1 frasco fechado',loc:'',notes:'',status:'ok'},
+  {num:52,cls:'Excipiente',name:'D-Pantenol',qty:'1 potinho cheio',loc:'',notes:'',status:'ok'},
+  {num:53,cls:'Sal',name:'Amônio Di-hidrogenofosfato',qty:'1 pote fechado',loc:'',notes:'',status:'ok'},
+  {num:54,cls:'Tensoativo',name:'SLS',qty:'1 pote fechado',loc:'',notes:'',status:'ok'},
+  {num:55,cls:'Polímero',name:'Protanal (Alginato)',qty:'1 frasco cheio',loc:'',notes:'',status:'ok'},
+  {num:56,cls:'Tensoativo',name:'Goma Xantana',qty:'1 frasco cheio',loc:'',notes:'',status:'ok'},
+  {num:57,cls:'Polímero',name:'Blanose CMC 7LF PH',qty:'1 frasco cheio',loc:'',notes:'',status:'ok'},
+  {num:58,cls:'Polímero',name:'Natrosol 250G (HEC)',qty:'1 frasco fechado',loc:'',notes:'',status:'ok'},
+  {num:59,cls:'Excipiente',name:'Talco',qty:'1 frasco fechado',loc:'',notes:'',status:'ok'},
+  {num:60,cls:'Excipiente',name:'Witepsol S58',qty:'1 pote, pela metade',loc:'',notes:'',status:'ok'},
+  {num:61,cls:'Quelante',name:'EDTA (quelante)',qty:'1 pote fechado',loc:'',notes:'',status:'ok'},
+  {num:62,cls:'Reagente',name:'Combi Titrant 5',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:63,cls:'Polímero',name:'Natrosol 250M (HEC)',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:64,cls:'Excipiente',name:'Avicel RC-591',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:65,cls:'Polímero',name:'Blanose CMC 7MF PH',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:66,cls:'Fármaco',name:'Curcumina',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:67,cls:'Solvente',name:'Álcool Etílico Absoluto',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:68,cls:'Solvente',name:'Transcutol',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:69,cls:'Excipiente',name:'Kollidon 30 (PVP K30)',qty:'—',loc:'',notes:'',status:'unknown'},
+  {num:70,cls:'Polímero',name:'Chitosan',qty:'—',loc:'',notes:'',status:'unknown'},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// TASK STATES
+// ═══════════════════════════════════════════════════════════════
+const TASK_STATES=[
+  {key:'todo',label:'⏳ Por Fazer',cls:'status-todo',icon:'⏳',short:'Por Fazer'},
+  {key:'progress',label:'🔄 Em Progresso',cls:'status-progress',icon:'🔄',short:'Em Progresso'},
+  {key:'done',label:'✅ Concluída',cls:'status-done',icon:'✅',short:'Concluída'},
+];
+function getStatusInfo(key) { return TASK_STATES.find(s=>s.key===key)||TASK_STATES[0]; }
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════
+const genId = () => Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+function fmtDT(ts)   { if(!ts)return'—'; const d=new Date(ts); return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDate(ts) { if(!ts)return'—'; return new Date(ts).toLocaleDateString('pt-BR'); }
+function daysUntil(ts){ return Math.ceil((ts-Date.now())/86400000); }
+
+const CLS_BADGE={
+  'Polímero':'badge-blue','Ácido':'badge-red','Base':'badge-red','Sal':'badge-grey',
+  'Fármaco':'badge-green','Tampão':'badge-teal','Tensoativo':'badge-purple','Solvente':'badge-amber',
+  'Corante':'badge-purple','Excipiente':'badge-blue','Quelante':'badge-red',
+  'Aminoácido':'badge-green','Reagente':'badge-grey','Flavorizante':'badge-amber'
+};
+const clsBadge = c => CLS_BADGE[c]||'badge-grey';
+const STATUS_MAP = {
+  ok:     {cls:'r-ok',      icon:'🟢',label:'OK'},
+  low:    {cls:'r-low',     icon:'🟡',label:'Baixo'},
+  critical:{cls:'r-critical',icon:'🔴',label:'Crítico'},
+  unknown:{cls:'r-unknown', icon:'⚪',label:'Verificar'}
+};
+function statusHtml(s, id) {
+  const st = STATUS_MAP[s]||STATUS_MAP['unknown'];
+  return `<button class="r-status ${st.cls}" onclick="cycleRStatus('${id}')">${st.icon} ${st.label}</button>`;
+}
+const INC_STATUS = {
+  open:       {lbl:'🔓 Aberta',    cls:'badge-red',  cardCls:'inc-open'},
+  in_progress:{lbl:'🔧 A tratar',  cls:'badge-amber',cardCls:'inc-progress'},
+  resolved:   {lbl:'✅ Resolvida', cls:'badge-green',cardCls:'inc-resolved'},
+};
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let CU=null, rSearch='', rFilter='', _loginRole='professor', _nbStudTab=null, _eTab='text';
+
+// ═══════════════════════════════════════════════════════════════
+// INIT & AUTH
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+  if (firebaseConfig.apiKey === 'COLE_AQUI') {
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('authScreen').innerHTML =
+      `<div class="auth-bg"></div><div class="auth-dots"></div>
+       <div class="auth-card"><div class="auth-logo"><div class="auth-icon">⚙️</div>
+       <div><h1>Tech Release</h1><p>CONFIGURAÇÃO NECESSÁRIA</p></div></div>
+       <div class="info-banner amber">⚠️ Substitua os valores <strong>COLE_AQUI</strong> em <code>firebaseConfig</code> com os dados do seu projeto Firebase.</div>
+       <p style="font-size:13px;color:var(--text-muted);margin-top:12px">Depois de configurar, abra o Firestore Console e defina as regras de acesso conforme os comentários no código.</p></div>`;
+    return;
+  }
+  try {
+    const snap = await FS.collection('users').where('role','==','professor').limit(1).get();
+    if (snap.empty) { document.getElementById('setupScreen').classList.remove('hidden'); return; }
+  } catch(e) {
+    document.getElementById('authScreen').classList.remove('hidden');
+    const el = document.getElementById('loginErr');
+    el.textContent = '❌ Erro Firebase: '+e.message; el.style.display='block';
+    return;
+  }
+  const sess = localStorage.getItem('tr_sess');
+  if (sess) {
+    try { const user = await fsGet('users', sess); if (user) { enterApp(user); return; } } catch(e) {}
+  }
+  document.getElementById('authScreen').classList.remove('hidden');
+}
+
+async function doSetup() {
+  const name     = document.getElementById('setupName').value.trim();
+  const username = document.getElementById('setupUser').value.trim().toLowerCase().replace(/\s+/g,'.');
+  const pass     = document.getElementById('setupPass').value;
+  const pass2    = document.getElementById('setupPass2').value;
+  if (!name||!username||!pass) { showErr('setupErr','⚠️ Preencha todos os campos.'); return; }
+  if (pass !== pass2)          { showErr('setupErr','❌ As senhas não coincidem.'); return; }
+  if (pass.length < 6)         { showErr('setupErr','⚠️ Senha mínimo de 6 caracteres.'); return; }
+  const btn = document.querySelector('#setupScreen .btn-primary');
+  btn.disabled=true; btn.textContent='⏳ Criando conta...';
+  try {
+    const hash = await sha256(pass);
+    const uid  = 'prof_' + genId();
+    await fsSet('users', uid, {id:uid, username, passwordHash:hash, name, role:'professor'});
+    await seedReagents();
+    document.getElementById('setupScreen').classList.add('hidden');
+    document.getElementById('authScreen').classList.remove('hidden');
+  } catch(e) {
+    showErr('setupErr','❌ Erro: '+e.message);
+    btn.disabled=false; btn.textContent='🚀 Criar Conta e Começar';
+  }
+}
+
+async function seedReagents() {
+  const existing = await FS.collection('reagents').limit(1).get();
+  if (!existing.empty) return;
+  const batch = FS.batch();
+  INIT_REAGENTS.forEach(r => {
+    const ref = FS.collection('reagents').doc(String(r.num));
+    batch.set(ref, {...r, id: String(r.num)});
+  });
+  await batch.commit();
+}
+
+function setRole(role) {
+  _loginRole = role;
+  document.querySelectorAll('.role-tab').forEach((el,i) =>
+    el.classList.toggle('active', (i===0&&role==='professor')||(i===1&&role==='student')));
+}
+
+async function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (!u||!p) { showErr('loginErr','⚠️ Preencha utilizador e senha.'); return; }
+  const btn = document.querySelector('#authScreen .btn-primary');
+  btn.disabled=true; btn.textContent='⏳ A entrar...';
+  try {
+    const hash = await sha256(p);
+    const snap = await FS.collection('users').where('username','==',u).limit(1).get();
+    if (snap.empty || snap.docs[0].data().passwordHash !== hash) {
+      showErr('loginErr','❌ Utilizador ou senha incorretos.');
+      btn.disabled=false; btn.textContent='🚀 Entrar no Lab'; return;
+    }
+    const user = {id: snap.docs[0].id, ...snap.docs[0].data()};
+    if (_loginRole==='professor'&&user.role!=='professor') { showErr('loginErr','❌ Esta conta não é de professora.'); btn.disabled=false; btn.textContent='🚀 Entrar no Lab'; return; }
+    if (_loginRole==='student'&&user.role!=='student')     { showErr('loginErr','❌ Use o acesso de Professora.'); btn.disabled=false; btn.textContent='🚀 Entrar no Lab'; return; }
+    enterApp(user);
+  } catch(e) {
+    showErr('loginErr','❌ Erro: '+e.message);
+    btn.disabled=false; btn.textContent='🚀 Entrar no Lab';
+  }
+}
+
+function enterApp(user) {
+  CU = user;
+  localStorage.setItem('tr_sess', user.id);
+  history.pushState({app:true},'',window.location.pathname);
+  window.addEventListener('popstate', ()=>history.pushState({app:true},'',window.location.pathname));
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('appShell').classList.remove('hidden');
+  const initials = user.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('sbAvatar').textContent = initials;
+  if (user.role==='professor') document.getElementById('sbAvatar').classList.add('prof-av');
+  document.getElementById('sbName').textContent = user.name;
+  document.getElementById('sbRole').textContent  = user.role==='professor'?'👩‍🔬 Professora':'🎓 Aluno(a)';
+  document.querySelectorAll('.prof-only').forEach(el=>el.classList.toggle('hidden',user.role!=='professor'));
+  document.querySelectorAll('.student-only').forEach(el=>el.classList.toggle('hidden',user.role!=='student'));
+  refreshBadge();
+  navigate('dashboard');
+  setInterval(refreshBadge, 30000);
+}
+
+function doLogout() { localStorage.removeItem('tr_sess'); location.reload(); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+function closeSidebar()  { document.getElementById('sidebar').classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+const VIEW_TITLES = {
+  dashboard:'🏠 Dashboard', reagents:'⚗️ Inventário de Reactivos', messages:'✉️ Mensagens',
+  calendar:'📅 Calendário', tasks:'✅ Tarefas', notebook:'📓 Caderno de Laboratório',
+  students:'👥 Gestão de Alunos', notebooks:'📓 Cadernos dos Alunos',
+  requests:'📦 Material em Falta', incidents:'🔧 Avarias', profnotes:'📝 Minhas Notas'
+};
+async function navigate(view) {
+  document.querySelectorAll('.nav-item[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
+  document.getElementById('topbarTitle').textContent = VIEW_TITLES[view]||view;
+  const map = {
+    dashboard:renderDash, reagents:renderReagents, messages:renderMessages,
+    calendar:renderCal, tasks:renderTasks, notebook:()=>renderNotebook(null),
+    students:renderStudents, notebooks:renderNotebooks,
+    requests:renderRequests, incidents:renderIncidents, profnotes:renderProfNotes
+  };
+  if (map[view]) await map[view]();
+}
+
+async function refreshBadge() {
+  try {
+    const [msgs, reqs, incs] = await Promise.all([getMessages(), getRequests(), getIncidents()]);
+    const n = msgs.filter(m=>(m.to==='all'||m.to===CU.id)&&m.from!==CU.id&&!(m.readBy||[]).includes(CU.id)).length;
+    const b = document.getElementById('msgBadge');
+    if(b){if(n>0){b.textContent=n;b.classList.remove('hidden')}else b.classList.add('hidden')}
+    const rn = CU.role==='professor'?reqs.filter(r=>r.status==='pending').length:0;
+    const rb = document.getElementById('reqBadge');
+    if(rb){if(rn>0){rb.textContent=rn;rb.classList.remove('hidden')}else rb.classList.add('hidden')}
+    const incn = CU.role==='professor'?incs.filter(i=>i.status!=='resolved').length:0;
+    const ib = document.getElementById('incBadge');
+    if(ib){if(incn>0){ib.textContent=incn;ib.classList.remove('hidden')}else ib.classList.add('hidden')}
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+async function renderDash() {
+  setActions(''); setLoading('Carregando dashboard...');
+  const [meetings, myTasks, msgs, students, reagents, reqs, incs, allTasks] = await Promise.all([
+    getMeetings(), getMyTasks(CU.id), getMessages(),
+    fsGetAll('users',['role','==','student']),
+    getReagents(), getRequests(), getIncidents(),
+    CU.role==='professor'?getAllTasks():Promise.resolve([])
+  ]);
+  const upcoming = meetings.filter(m=>m.date>=Date.now()).sort((a,b)=>a.date-b.date);
+  let banner;
+  if (upcoming.length) {
+    const nxt=upcoming[0]; const d=daysUntil(nxt.date);
+    banner=`<div class="meeting-banner"><div><div class="mb-badge">📅 PRÓXIMA REUNIÃO</div>
+      <div class="mb-title">${nxt.title}</div><div class="mb-date">🕐 ${fmtDT(nxt.date)}</div>
+      ${nxt.desc?`<div class="mb-desc">📍 ${nxt.desc}</div>`:''}</div>
+      <div class="mb-days-box"><div class="mb-num">${d<=0?'Hoje!':d}</div><div class="mb-unit">${d<=0?'':'DIAS'}</div></div></div>`;
+  } else {
+    banner=`<div class="meeting-banner empty"><div><div style="font-size:13px;font-weight:700;margin-bottom:4px">📅 Próxima Reunião</div>
+      <div style="font-size:20px;font-weight:800">Sem reuniões agendadas</div></div>
+      <div class="mb-days-box" style="background:transparent;border-color:var(--border)"><div class="mb-num" style="font-size:40px">📭</div></div></div>`;
+  }
+  const myDone=myTasks.filter(t=>t.status==='done').length;
+  const myProgress=myTasks.filter(t=>t.status==='progress').length;
+  const myTodo=myTasks.filter(t=>!t.status||t.status==='todo').length;
+  const unread=msgs.filter(m=>(m.to==='all'||m.to===CU.id)&&m.from!==CU.id&&!(m.readBy||[]).includes(CU.id)).length;
+  const lowStock=reagents.filter(r=>r.status==='low'||r.status==='critical').length;
+  const pendingReqs=reqs.filter(r=>r.status==='pending').length;
+  const openIncs=incs.filter(i=>i.status!=='resolved').length;
+  const urgentMsgs=msgs.filter(m=>(m.to==='all'||m.to===CU.id)&&m.from!==CU.id&&m.priority==='urgent'&&!(m.readBy||[]).includes(CU.id));
+  const urgentBanner=urgentMsgs.length?`<div class="urgent-strip">🚨 <strong>${urgentMsgs.length} mensagem(ns) URGENTE(S)</strong> não lida(s) — verifique as Mensagens!</div>`:'';
+  const stats = CU.role==='professor' ? `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--blue),var(--green))"></div><div class="stat-emoji">👥</div><div class="stat-val" style="color:var(--blue)">${students.length}</div><div class="stat-lbl">Alunos registados</div></div>
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--amber),#e07b00)"></div><div class="stat-emoji">⚠️</div><div class="stat-val" style="color:var(--amber)">${lowStock}</div><div class="stat-lbl">Reactivos a verificar</div></div>
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--teal),#0097a7)"></div><div class="stat-emoji">📦</div><div class="stat-val" style="color:${pendingReqs>0?'var(--amber)':'var(--text-muted)'}">${pendingReqs}</div><div class="stat-lbl">Material em falta</div></div>
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--red),#c0392b)"></div><div class="stat-emoji">🔧</div><div class="stat-val" style="color:${openIncs>0?'var(--red)':'var(--text-muted)'}">${openIncs}</div><div class="stat-lbl">Avarias abertas</div></div>
+    </div>` : `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--text-muted),var(--border2))"></div><div class="stat-emoji">⏳</div><div class="stat-val" style="color:var(--text-muted)">${myTodo}</div><div class="stat-lbl">Por Fazer</div></div>
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--blue),#1266c4)"></div><div class="stat-emoji">🔄</div><div class="stat-val" style="color:var(--blue)">${myProgress}</div><div class="stat-lbl">Em Progresso</div></div>
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--green),var(--green-mid))"></div><div class="stat-emoji">✅</div><div class="stat-val" style="color:var(--green)">${myDone}</div><div class="stat-lbl">Concluídas</div></div>
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--amber),#e07b00)"></div><div class="stat-emoji">✉️</div><div class="stat-val" style="color:${unread>0?'var(--blue)':'var(--text-muted)'}">${unread}</div><div class="stat-lbl">Msgs não lidas</div></div>
+    </div>`;
+  const recMsgs = msgs.sort((a,b)=>b.ts-a.ts).slice(0,5);
+  const allUsers = await getUsers();
+  const msgsHtml = recMsgs.length ? recMsgs.map(m=>{
+    const snd=allUsers.find(u=>u.id===m.from);
+    const unr=m.from!==CU.id&&!(m.readBy||[]).includes(CU.id);
+    const isUrgent=m.priority==='urgent';
+    return`<div class="msg-item ${unr?'unread':''} ${isUrgent&&unr?'urgent-msg':''}" onclick="openMsg('${m.id}')">
+      <div class="msg-top"><span class="msg-from">${m.from===CU.id?'🗣️ Eu':'💬 '+(snd?.name||'?')}
+        ${m.to==='all'?'<span class="badge badge-blue" style="margin-left:5px">📢 Grupo</span>':''}
+        ${isUrgent?'<span class="badge badge-red" style="margin-left:5px">🚨 Urgente</span>':''}
+      </span><span class="msg-date">${fmtDT(m.ts)}</span></div>
+      <div class="msg-subject" style="font-weight:${unr?700:500}">${unr?'🔵 ':''} ${m.subject}</div>
+    </div>`;
+  }).join('') : `<div class="text-center text-muted" style="padding:20px 0;font-size:13px">📭 Sem mensagens ainda.</div>`;
+  const dashTasks = CU.role==='professor' ? allTasks.slice(0,4) : myTasks.filter(t=>t.status!=='done').slice(0,4);
+  const tasksHtml = dashTasks.length ? dashTasks.map(t=>{
+    const cur=t.status||'todo'; const si=getStatusInfo(cur);
+    return`<div class="task-item ${cur==='done'?'is-done':''}" style="margin-bottom:8px;padding:12px 14px">
+      ${CU.role==='student'?`<button class="status-pill status-${cur}" onclick="_cycleDash('${t.id}')">${si.icon} ${si.short}</button>`:'<span style="font-size:18px">📌</span>'}
+      <div class="task-body"><div class="task-title ${cur==='done'?'crossed':''}" style="font-size:13px">${t.title}</div></div></div>`;
+  }).join('') : `<div class="text-center text-muted" style="padding:20px 0;font-size:13px">🎉 Nenhuma tarefa pendente!</div>`;
+  const progSection = CU.role==='professor'&&students.length ? `
+    <div class="card" style="margin-top:0"><div class="card-title">📊 Progresso dos Alunos</div>
+      ${students.map(s=>{ const sTasks=allTasks.filter(t=>t.owner===s.id); const done=sTasks.filter(t=>t.status==='done').length; const pct=sTasks.length?Math.round(done/sTasks.length*100):0;
+        return`<div style="margin-bottom:14px"><div class="flex-between mb-4"><span class="text-sm fw-700">👤 ${s.name.split(' ').slice(0,2).join(' ')}</span>
+          <span class="text-xs text-muted">${done}/${sTasks.length} · <strong style="color:${pct===100?'var(--green)':pct>50?'var(--blue)':'var(--amber)'}">${pct}%</strong></span></div>
+          <div class="progress"><div class="progress-fill ${pct===100?'green':''}" style="width:${pct}%"></div></div></div>`;
+      }).join('')}</div>` : '';
+  const sidePanels = `
+    ${reqs.filter(r=>r.status==='pending').length?`<div class="card"><div class="card-title">📦 Material em Falta <button class="btn btn-ghost btn-sm" onclick="navigate('requests')">Ver tudo →</button></div>
+      ${reqs.filter(r=>r.status==='pending').slice(0,3).map(r=>{const rp=allUsers.find(u=>u.id===r.owner);return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><div style="flex:1;font-size:13px;font-weight:600">${r.reagent}</div><span class="badge badge-grey" style="font-size:9px">${rp?.name?.split(' ')[0]||'?'}</span></div>`;}).join('')}</div>`:''}
+    ${incs.filter(i=>i.status!=='resolved').length?`<div class="card"><div class="card-title">🔧 Avarias Abertas <button class="btn btn-ghost btn-sm" onclick="navigate('incidents')">Ver todas →</button></div>
+      ${incs.filter(i=>i.status!=='resolved').slice(0,3).map(i=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><div style="flex:1;font-size:13px;font-weight:600">${i.title}</div><span class="badge badge-red">🔓 Aberta</span></div>`).join('')}</div>`:''}`;
+  setContent(`${urgentBanner}${banner}${stats}
+    <div class="grid-60-40">
+      <div><div class="card"><div class="card-title">✉️ Mensagens Recentes <button class="btn btn-ghost btn-sm" onclick="navigate('messages')">Ver todas →</button></div><div class="msg-list">${msgsHtml}</div></div>${sidePanels}</div>
+      <div><div class="card"><div class="card-title">${CU.role==='professor'?'📌 Tarefas (visão geral)':'⏳ Minhas Tarefas'} <button class="btn btn-ghost btn-sm" onclick="navigate('tasks')">Ver todas →</button></div>${tasksHtml}</div>${progSection}</div>
+    </div>`);
+}
+function _cycleDash(id) { cycleMyTask(id).then(()=>renderDash()).catch(console.error); }
+
+// ═══════════════════════════════════════════════════════════════
+// REAGENTS
+// ═══════════════════════════════════════════════════════════════
+async function renderReagents() {
+  setActions(`<button class="btn btn-primary btn-sm" onclick="modalAddR()">➕ Adicionar</button>`);
+  setLoading('Carregando reactivos...');
+  const all = await getReagents();
+  all.sort((a,b)=>(a.num||0)-(b.num||0));
+  const classes = [...new Set(all.map(r=>r.cls))].sort();
+  const fil = all.filter(r=>{
+    const q=rSearch.toLowerCase();
+    return(!q||r.name.toLowerCase().includes(q)||r.cls.toLowerCase().includes(q)||(r.notes||'').toLowerCase().includes(q)||(r.qty||'').toLowerCase().includes(q))&&(!rFilter||r.cls===rFilter);
+  });
+  const lowCount=fil.filter(r=>r.status==='low'||r.status==='critical').length;
+  const critCount=fil.filter(r=>r.status==='critical').length;
+  const rows = fil.map(r=>`
+    <tr>
+      <td class="text-mono text-muted" style="font-size:10px;color:var(--text-dim)">${r.num}</td>
+      <td><span class="badge ${clsBadge(r.cls)}">${r.cls}</span></td>
+      <td style="font-weight:600;max-width:280px">${r.name}</td>
+      <td class="text-sm" style="color:var(--text-muted);min-width:140px">${r.qty||'—'}</td>
+      <td class="text-sm text-muted">${r.loc||'—'}</td>
+      <td>${statusHtml(r.status||'ok',r.id)}</td>
+      <td>${r.notes?`<span style="font-size:11px;color:${r.notes.includes('🔴')?'var(--red)':'var(--text-muted)'}">${r.notes}</span>`:''}</td>
+      <td><div class="flex gap-4">
+        <button class="btn btn-secondary btn-xs" onclick="modalEditR('${r.id}')">✏️</button>
+        ${CU.role==='professor'?`<button class="btn btn-danger btn-xs" onclick="delR('${r.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`).join('');
+  setContent(`
+    ${critCount>0?`<div class="info-banner red">🔴 <strong>${critCount} material(is)</strong> em nível CRÍTICO!</div>`:''}
+    ${lowCount>0&&!critCount?`<div class="info-banner amber">⚠️ <strong>${lowCount} material(is)</strong> com estoque baixo.</div>`:''}
+    <div class="flex gap-8 mb-16" style="flex-wrap:wrap;align-items:center">
+      <div class="search-wrap" style="flex:1;min-width:200px"><span class="search-icon">🔍</span>
+        <input type="text" value="${rSearch}" placeholder="Pesquisar reactivo..." oninput="rSearch=this.value;renderReagents()"></div>
+      <select style="width:190px" onchange="rFilter=this.value;renderReagents()">
+        <option value="">🗂️ Todas as classes</option>
+        ${classes.map(c=>`<option value="${c}" ${rFilter===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <span class="badge badge-grey">📦 ${fil.length} / ${all.length}</span>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Classe</th><th>Material</th><th>Quantidade</th><th>Local</th><th>Status</th><th>Notas</th><th>Ações</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-dim)">Nenhum resultado 🔍</td></tr>'}</tbody>
+    </table></div>
+    <div class="info-banner blue" style="margin-top:14px">💡 Clique no status (🟢🟡🔴) para atualizar. Qualquer membro pode editar!</div>`);
+}
+function cycleRStatus(id) { _cycleRStatus(id).catch(console.error); }
+async function _cycleRStatus(id) {
+  const r = await fsGet('reagents', id); if(!r) return;
+  const order=['ok','low','critical','unknown'];
+  await fsUpdate('reagents', id, {status: order[(order.indexOf(r.status||'ok')+1)%order.length]});
+  await renderReagents();
+}
+const CLS_LIST=['Polímero','Ácido','Base','Sal','Fármaco','Tampão','Tensoativo','Solvente','Corante','Excipiente','Quelante','Aminoácido','Flavorizante','Reagente'];
+function _rForm(r={}) { return`
+  <div class="grid-2">
+    <div class="form-group"><label>🏷️ Classe</label><select id="rCls">${CLS_LIST.map(c=>`<option ${r.cls===c?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="form-group"><label>📦 Quantidade</label><input type="text" id="rQty" value="${r.qty||''}" placeholder="Ex: 2 potes cheios"></div>
+  </div>
+  <div class="form-group"><label>🧪 Nome do Material</label><input type="text" id="rName" value="${r.name||''}" placeholder="Nome completo do material"></div>
+  <div class="grid-2">
+    <div class="form-group"><label>📍 Local</label><input type="text" id="rLoc" value="${r.loc||''}" placeholder="Ex: Armário 2"></div>
+    <div class="form-group"><label>🚦 Status</label><select id="rStatus">
+      <option value="ok" ${(r.status||'ok')==='ok'?'selected':''}>🟢 OK</option>
+      <option value="low" ${r.status==='low'?'selected':''}>🟡 Baixo</option>
+      <option value="critical" ${r.status==='critical'?'selected':''}>🔴 Crítico</option>
+      <option value="unknown" ${r.status==='unknown'?'selected':''}>⚪ Verificar</option>
+    </select></div>
+  </div>
+  <div class="form-group"><label>📝 Notas</label><input type="text" id="rNotes" value="${r.notes||''}" placeholder="Ex: 🔴 Manter na campana"></div>`; }
+function modalAddR() { showModal(`<div class="modal"><div class="modal-title">➕ Adicionar Reactivo</div>${_rForm()}
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveNewR()">💾 Guardar</button></div></div>`); }
+async function saveNewR() {
+  const name=document.getElementById('rName').value.trim(); if(!name) return;
+  const all=await getReagents(); const maxNum=Math.max(0,...all.map(r=>r.num||0));
+  await fsAdd('reagents',{name,cls:document.getElementById('rCls').value,qty:document.getElementById('rQty').value.trim(),
+    loc:document.getElementById('rLoc').value.trim(),status:document.getElementById('rStatus').value,
+    notes:document.getElementById('rNotes').value.trim(),num:maxNum+1});
+  closeModal(); await renderReagents();
+}
+function modalEditR(id) { fsGet('reagents',id).then(r=>{ if(!r)return;
+  showModal(`<div class="modal"><div class="modal-title">✏️ Editar Reactivo #${r.num}</div>${_rForm(r)}
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEditR('${id}')">💾 Guardar</button></div></div>`);
+}); }
+async function saveEditR(id) {
+  await fsUpdate('reagents',id,{cls:document.getElementById('rCls').value,name:document.getElementById('rName').value.trim(),
+    qty:document.getElementById('rQty').value.trim(),loc:document.getElementById('rLoc').value.trim(),
+    status:document.getElementById('rStatus').value,notes:document.getElementById('rNotes').value.trim()});
+  closeModal(); await renderReagents();
+}
+function delR(id) { if(!confirm('🗑️ Eliminar este reactivo?'))return; fsDel('reagents',id).then(renderReagents); }
+
+// ═══════════════════════════════════════════════════════════════
+// MESSAGES
+// ═══════════════════════════════════════════════════════════════
+async function renderMessages() {
+  const isP = CU.role==='professor';
+  setActions(isP?`<button class="btn btn-primary btn-sm" onclick="modalCompose()">✉️ Nova Mensagem</button>`
+               :`<button class="btn btn-secondary btn-sm" onclick="modalComposeStudent()">✉️ Escrever</button>`);
+  setLoading('Carregando mensagens...');
+  const [msgs, allUsers] = await Promise.all([getMessages(), getUsers()]);
+  msgs.sort((a,b)=>b.ts-a.ts);
+  const urgent=msgs.filter(m=>m.priority==='urgent'&&m.from!==CU.id&&!(m.readBy||[]).includes(CU.id));
+  const urgentBanner=urgent.length?`<div class="urgent-strip">🚨 <strong>${urgent.length} mensagem(ns) URGENTE(S)</strong> não lida(s) abaixo</div>`:'';
+  const html=msgs.length?msgs.map(m=>{
+    const snd=allUsers.find(u=>u.id===m.from);
+    const isMine=m.from===CU.id; const unr=!isMine&&!(m.readBy||[]).includes(CU.id);
+    const isUrgent=m.priority==='urgent'; const rep=(m.replies||[]).length;
+    return`<div class="msg-item ${isUrgent&&unr?'urgent-msg':unr?'unread':''}" onclick="openMsg('${m.id}')">
+      <div class="msg-top"><span class="msg-from">
+        ${isMine?'🗣️ Eu → '+(m.to==='all'?'Grupo':(allUsers.find(u=>u.id===m.to)?.name||'?')):'💬 '+(snd?.name||'?')}
+        ${m.to==='all'?'<span class="badge badge-blue" style="margin-left:5px">📢 Grupo</span>':''}
+        ${isUrgent?'<span class="badge badge-red" style="margin-left:5px">🚨 Urgente</span>':'<span class="badge badge-grey" style="margin-left:5px">📌 Normal</span>'}
+      </span><span class="msg-date">${fmtDT(m.ts)}</span></div>
+      <div class="msg-subject" style="font-weight:${unr?700:500}">${unr?'🔵 ':''}${m.subject}</div>
+      <div class="msg-preview">${rep?`💬 ${rep} resposta(s) · `:''} ${m.body.substring(0,80)}${m.body.length>80?'...':''}</div>
+    </div>`;
+  }).join(''):`<div class="nb-empty"><div class="nb-empty-icon">📭</div><p>Sem mensagens ainda.</p></div>`;
+  setContent(`${urgentBanner}<div class="msg-list">${html}</div>`);
+}
+async function openMsg(id) {
+  const [msg, allUsers] = await Promise.all([fsGet('messages',id), getUsers()]);
+  if(!msg) return;
+  if(!(msg.readBy||[]).includes(CU.id)) {
+    await FS.collection('messages').doc(id).update({readBy: firebase.firestore.FieldValue.arrayUnion(CU.id)});
+    refreshBadge();
+  }
+  const snd=allUsers.find(u=>u.id===msg.from);
+  const thread=[{from:msg.from,body:msg.body,ts:msg.ts},...(msg.replies||[])];
+  const bubbles=thread.map(r=>{const mine=r.from===CU.id;const rSnd=allUsers.find(u=>u.id===r.from);
+    return`<div class="thread-bubble ${mine?'mine':'theirs'}">
+      <div class="bubble-author">${mine?'🗣️ Eu':'💬 '+(rSnd?.name||'?')}</div>
+      <div class="bubble-text">${escapeHtml(r.body)}</div>
+      <div class="bubble-time">${fmtDT(r.ts)}</div></div>`;}).join('');
+  showModal(`<div class="modal modal-lg">
+    <div class="flex-between" style="padding-bottom:16px;border-bottom:1.5px solid var(--border);margin-bottom:18px">
+      <div><div style="font-size:17px;font-weight:800">${msg.subject}</div>
+        <div class="text-xs text-muted mt-4">💬 ${snd?.name||'?'} · ${fmtDT(msg.ts)}
+          ${msg.to==='all'?'<span class="badge badge-blue" style="margin-left:6px">📢 Grupo</span>':''}
+          ${msg.priority==='urgent'?'<span class="badge badge-red" style="margin-left:6px">🚨 Urgente</span>':'<span class="badge badge-grey" style="margin-left:6px">📌 Normal</span>'}</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">✕</button>
+    </div>
+    <div class="thread-list">${bubbles}</div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+      <div class="form-group"><textarea id="replyTxt" placeholder="✍️ Escreva a sua resposta..." style="min-height:80px"></textarea></div>
+      <div class="flex gap-8" style="justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal()">Fechar</button>
+        <button class="btn btn-primary btn-sm" onclick="sendReply('${id}')">📤 Enviar</button>
+      </div>
+    </div></div>`);
+}
+async function sendReply(mid) {
+  const body=document.getElementById('replyTxt').value.trim(); if(!body) return;
+  await FS.collection('messages').doc(mid).update({
+    replies: firebase.firestore.FieldValue.arrayUnion({from:CU.id,body,ts:Date.now()})
+  });
+  closeModal(); await renderMessages();
+}
+async function modalCompose() {
+  const students = await fsGetAll('users',['role','==','student']);
+  showModal(`<div class="modal"><div class="modal-title">✉️ Nova Mensagem</div>
+    <div class="form-group"><label>📬 Para</label><select id="msgTo">
+      <option value="all">📢 Todos os alunos (Grupo)</option>
+      ${students.map(s=>`<option value="${s.id}">👤 ${s.name}</option>`).join('')}
+    </select></div>
+    <div class="form-group"><label>🚦 Prioridade</label><select id="msgPriority">
+      <option value="normal">📌 Normal</option><option value="urgent">🚨 Urgente</option></select></div>
+    <div class="form-group mt-8"><label>📝 Assunto</label><input type="text" id="msgSubj" placeholder="Assunto da mensagem"></div>
+    <div class="form-group"><label>💬 Mensagem</label><textarea id="msgBody" style="min-height:120px"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="sendMsg()">📤 Enviar</button></div></div>`);
+}
+async function sendMsg() {
+  const s=document.getElementById('msgSubj').value.trim(); const b=document.getElementById('msgBody').value.trim();
+  if(!s||!b) return;
+  await fsAdd('messages',{from:CU.id,to:document.getElementById('msgTo').value,subject:s,body:b,
+    priority:document.getElementById('msgPriority').value,ts:Date.now(),readBy:[CU.id],replies:[]});
+  closeModal(); await renderMessages(); refreshBadge();
+}
+function modalComposeStudent() {
+  showModal(`<div class="modal"><div class="modal-title">✉️ Mensagem para a Professora</div>
+    <div class="form-group"><label>📝 Assunto</label><input type="text" id="msgSubj" placeholder="Assunto"></div>
+    <div class="form-group"><label>💬 Mensagem</label><textarea id="msgBody" style="min-height:120px"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="sendMsgStudent()">📤 Enviar</button></div></div>`);
+}
+async function sendMsgStudent() {
+  const s=document.getElementById('msgSubj').value.trim(); const b=document.getElementById('msgBody').value.trim(); if(!s||!b) return;
+  const snap=await FS.collection('users').where('role','==','professor').limit(1).get();
+  const profId=snap.empty?'prof_main':snap.docs[0].id;
+  await fsAdd('messages',{from:CU.id,to:profId,subject:s,body:b,priority:'normal',ts:Date.now(),readBy:[CU.id],replies:[]});
+  closeModal(); await renderMessages();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════════════════════
+async function renderCal() {
+  const isP=CU.role==='professor';
+  setActions(isP?`<button class="btn btn-primary btn-sm" onclick="modalAddM()">📅 Agendar</button>`:'');
+  setLoading('Carregando calendário...');
+  const ms=(await getMeetings()).sort((a,b)=>a.date-b.date);
+  const upcoming=ms.filter(m=>m.date>=Date.now()-86400000);
+  const past=ms.filter(m=>m.date<Date.now()-86400000);
+  let banner='';
+  if(upcoming.length){const nxt=upcoming[0];const d=daysUntil(nxt.date);
+    banner=`<div class="meeting-banner" style="margin-bottom:24px"><div><div class="mb-badge">📅 PRÓXIMA REUNIÃO</div>
+      <div class="mb-title">${nxt.title}</div><div class="mb-date">🕐 ${fmtDT(nxt.date)}</div>
+      ${nxt.desc?`<div class="mb-desc">📍 ${nxt.desc}</div>`:''}</div>
+      <div class="mb-days-box"><div class="mb-num">${d<=0?'Hoje!':d}</div><div class="mb-unit">${d<=0?'':'DIAS'}</div></div></div>`;}
+  function mItem(m){const d=new Date(m.date);const isPast=m.date<Date.now();
+    return`<div class="cal-item ${isPast?'past':''}">
+      <div class="cal-date-box"><div class="cal-day">${d.getDate()}</div><div class="cal-month">${d.toLocaleDateString('pt-BR',{month:'short'})}</div></div>
+      <div class="cal-body"><div class="cal-title">📌 ${m.title}${isPast?` <span class="badge badge-grey" style="font-size:9px">Passada</span>`:' <span class="badge badge-blue" style="font-size:9px">Próxima</span>'}</div>
+        <div class="cal-time">📅 ${d.toLocaleDateString('pt-BR',{weekday:'long'})} · 🕐 ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+        ${m.desc?`<div class="cal-desc">📍 ${m.desc}</div>`:''}</div>
+      ${isP?`<div class="flex gap-4"><button class="btn btn-secondary btn-xs" onclick="modalEditM('${m.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="delM('${m.id}')">🗑️</button></div>`:''}</div>`;}
+  setContent(`${banner}<div class="card"><div class="card-title">📅 Reuniões Futuras</div>
+    ${upcoming.length?upcoming.map(mItem).join(''):`<div class="text-center text-muted" style="padding:20px 0;font-size:13px">📭 Sem reuniões agendadas.</div>`}</div>
+    ${past.length?`<div class="card"><div class="card-title">⏮️ Reuniões Anteriores</div>${[...past].reverse().map(mItem).join('')}</div>`:''}`);
+}
+function _nowLocal(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}
+function modalAddM(){showModal(`<div class="modal"><div class="modal-title">📅 Agendar Reunião</div>
+  <div class="form-group"><label>📌 Título</label><input type="text" id="mT" placeholder="Ex: Reunião quinzenal"></div>
+  <div class="form-group"><label>🕐 Data e Hora</label><input type="datetime-local" id="mD" value="${_nowLocal()}"></div>
+  <div class="form-group"><label>📍 Local / Descrição (opcional)</label><textarea id="mDesc"></textarea></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveM()">✅ Agendar</button></div></div>`);}
+async function saveM(){
+  const t=document.getElementById('mT').value.trim(); if(!t) return;
+  await fsAdd('meetings',{title:t,date:new Date(document.getElementById('mD').value).getTime(),desc:document.getElementById('mDesc').value.trim()});
+  closeModal(); await renderCal();
+}
+function modalEditM(id){fsGet('meetings',id).then(m=>{if(!m)return;
+  const d=new Date(m.date);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  showModal(`<div class="modal"><div class="modal-title">✏️ Editar Reunião</div>
+    <div class="form-group"><label>📌 Título</label><input type="text" id="mT" value="${m.title}"></div>
+    <div class="form-group"><label>🕐 Data e Hora</label><input type="datetime-local" id="mD" value="${d.toISOString().slice(0,16)}"></div>
+    <div class="form-group"><label>📍 Local / Descrição</label><textarea id="mDesc">${m.desc||''}</textarea></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEditM('${id}')">💾 Guardar</button></div></div>`);});}
+async function saveEditM(id){
+  await fsUpdate('meetings',id,{title:document.getElementById('mT').value.trim(),date:new Date(document.getElementById('mD').value).getTime(),desc:document.getElementById('mDesc').value.trim()});
+  closeModal(); await renderCal();
+}
+function delM(id){if(!confirm('🗑️ Eliminar reunião?'))return; fsDel('meetings',id).then(renderCal);}
+
+// ═══════════════════════════════════════════════════════════════
+// TASKS
+// ═══════════════════════════════════════════════════════════════
+async function cycleMyTask(taskId) {
+  const task=await fsGet('tasks',taskId); if(!task||task.owner!==CU.id) return;
+  const states=['todo','progress','done'];
+  await fsUpdate('tasks',taskId,{status:states[(states.indexOf(task.status||'todo')+1)%states.length]});
+}
+async function renderTasks() {
+  const isP=CU.role==='professor';
+  setActions(!isP?`<button class="btn btn-primary btn-sm" onclick="modalAddT()">➕ Nova Tarefa</button>`:'');
+  setLoading('Carregando tarefas...');
+  if(isP){
+    const [students, allTasks]=await Promise.all([fsGetAll('users',['role','==','student']),getAllTasks()]);
+    if(!students.length){setContent(`<div class="nb-empty"><div class="nb-empty-icon">👥</div><p>Nenhum aluno registado.</p></div>`);return;}
+    const sections=students.map(s=>{
+      const sTasks=allTasks.filter(t=>t.owner===s.id).sort((a,b)=>a.ts-b.ts);
+      const done=sTasks.filter(t=>t.status==='done').length; const pct=sTasks.length?Math.round(done/sTasks.length*100):0;
+      const rows=sTasks.length?sTasks.map(t=>{const cur=t.status||'todo';const si=getStatusInfo(cur);
+        return`<div class="student-task-row">
+          <span class="status-pill status-${cur}" style="cursor:default;pointer-events:none">${si.icon} ${si.short}</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;${cur==='done'?'text-decoration:line-through;color:var(--text-muted)':''}">${t.title}</div>
+          ${t.desc?`<div style="font-size:11px;color:var(--text-muted)">${t.desc}</div>`:''}</div></div>`;}).join('')
+        :`<div style="font-size:12px;color:var(--text-muted);padding:12px 0">📋 Nenhuma tarefa criada ainda.</div>`;
+      return`<div class="student-task-section">
+        <div class="student-task-header" onclick="this.nextElementSibling.classList.toggle('hidden')">
+          <div class="flex-center gap-12"><div class="student-av" style="width:38px;height:38px;font-size:14px;margin:0">${s.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</div>
+            <div><div style="font-size:14px;font-weight:700">${s.name}</div><div style="font-size:11px;color:var(--text-muted)">@${s.username} · ${sTasks.length} tarefa(s)</div></div></div>
+          <div class="flex-center gap-12"><div style="text-align:right"><div style="font-size:13px;font-weight:700;color:${pct===100?'var(--green)':pct>50?'var(--blue)':'var(--amber)'}">${pct}%</div>
+            <div style="font-size:10px;color:var(--text-muted)">${done}/${sTasks.length}</div></div><span style="color:var(--text-dim);font-size:18px">▾</span></div></div>
+        <div class="student-task-body">${rows}</div></div>`;}).join('');
+    setContent(`<div class="info-banner blue">👩‍🔬 Visão da professora — os alunos gerem as suas tarefas.</div>${sections}`); return;
+  }
+  const tasks=(await getMyTasks(CU.id)).sort((a,b)=>a.ts-b.ts);
+  const html=tasks.length?tasks.map(t=>{
+    const cur=t.status||'todo'; const si=getStatusInfo(cur); const isDone=cur==='done';
+    return`<div class="task-item ${isDone?'is-done':''}">
+      <button class="status-pill status-${cur}" onclick="doTaskCycle('${t.id}')">${si.label}</button>
+      <div class="task-body"><div class="task-title ${isDone?'crossed':''}">${t.title}
+        ${t.priority==='high'?'<span class="badge badge-red" style="margin-left:6px;font-size:9px">🔴 Urgente</span>':''}</div>
+        ${t.desc?`<div class="task-desc">${t.desc}</div>`:''}</div>
+      <div class="flex gap-4" style="flex-direction:column;flex-shrink:0">
+        <button class="btn btn-secondary btn-xs" onclick="modalEditT('${t.id}')">✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="delT('${t.id}')">🗑️</button>
+      </div></div>`;
+  }).join(''):`<div class="nb-empty"><div class="nb-empty-icon">✅</div><p>Nenhuma tarefa ainda.</p></div>`;
+  setContent(`<div class="info-banner blue">💡 Clique no estado para avançar: ⏳ → 🔄 → ✅</div>${html}`);
+}
+function doTaskCycle(id) { cycleMyTask(id).then(()=>renderTasks()).catch(console.error); }
+function _tForm(t={}){return`
+  <div class="form-group"><label>📌 Título</label><input type="text" id="tTit" value="${t.title||''}" placeholder="Título da tarefa"></div>
+  <div class="form-group"><label>📝 Descrição (opcional)</label><textarea id="tDesc">${t.desc||''}</textarea></div>
+  <div class="form-group"><label>🚦 Prioridade</label><select id="tPri">
+    <option value="normal" ${t.priority!=='high'?'selected':''}>🟢 Normal</option>
+    <option value="high" ${t.priority==='high'?'selected':''}>🔴 Urgente</option>
+  </select></div>`;}
+function modalAddT(){showModal(`<div class="modal"><div class="modal-title">➕ Nova Tarefa</div>${_tForm()}
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveT()">✅ Criar</button></div></div>`);}
+async function saveT(){
+  const tit=document.getElementById('tTit').value.trim(); if(!tit) return;
+  await fsAdd('tasks',{owner:CU.id,title:tit,desc:document.getElementById('tDesc').value.trim(),
+    priority:document.getElementById('tPri').value,status:'todo',ts:Date.now()});
+  closeModal(); await renderTasks();
+}
+function modalEditT(id){fsGet('tasks',id).then(t=>{if(!t)return;
+  showModal(`<div class="modal"><div class="modal-title">✏️ Editar Tarefa</div>${_tForm(t)}
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEditT('${id}')">💾 Guardar</button></div></div>`);});}
+async function saveEditT(id){
+  await fsUpdate('tasks',id,{title:document.getElementById('tTit').value.trim(),desc:document.getElementById('tDesc').value.trim(),priority:document.getElementById('tPri').value});
+  closeModal(); await renderTasks();
+}
+function delT(id){if(!confirm('🗑️ Eliminar tarefa?'))return; fsDel('tasks',id).then(renderTasks);}
+
+// ═══════════════════════════════════════════════════════════════
+// STUDENTS
+// ═══════════════════════════════════════════════════════════════
+async function renderStudents() {
+  setActions(`<button class="btn btn-primary btn-sm" onclick="modalAddStudentDirect()">➕ Adicionar Aluno</button>`);
+  setLoading('Carregando alunos...');
+  const [students, allTasks] = await Promise.all([fsGetAll('users',['role','==','student']), getAllTasks()]);
+  if(!students.length){setContent(`<div class="nb-empty"><div class="nb-empty-icon">👥</div><p>Nenhum aluno registado ainda.</p>
+    <div class="mt-16"><button class="btn btn-primary" onclick="modalAddStudentDirect()">➕ Adicionar Aluno</button></div></div>`);return;}
+  const cards=students.map(s=>{
+    const sTasks=allTasks.filter(t=>t.owner===s.id);
+    const done=sTasks.filter(t=>t.status==='done').length;
+    const progress=sTasks.filter(t=>t.status==='progress').length;
+    const pct=sTasks.length?Math.round(done/sTasks.length*100):0;
+    return`<div class="student-card" onclick="viewStudentNotebook('${s.id}')">
+      <div class="student-av">${s.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</div>
+      <div class="student-name">👤 ${s.name}</div><div class="student-sub">@${s.username}</div>
+      <div class="student-stats">
+        <div class="flex gap-6 mb-8" style="flex-wrap:wrap;justify-content:center">
+          <span class="badge badge-green">✅ ${done}</span>
+          <span class="badge badge-blue">🔄 ${progress}</span>
+          <span class="badge badge-grey">⏳ ${sTasks.length-done-progress}</span>
+        </div>
+        <div class="flex-between mb-4"><span class="text-xs text-muted">${done}/${sTasks.length} tarefas</span>
+          <span class="text-xs" style="color:${pct===100?'var(--green)':pct>50?'var(--blue)':'var(--amber)'};font-weight:700">${pct}%</span></div>
+        <div class="progress mb-8"><div class="progress-fill ${pct===100?'green':''}" style="width:${pct}%"></div></div>
+        <div class="flex-between">
+          <button class="btn btn-secondary btn-xs" onclick="event.stopPropagation();editStudent('${s.id}')">✏️ Editar</button>
+          <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();delStudent('${s.id}')">🗑️ Remover</button>
+        </div>
+      </div></div>`;}).join('');
+  setContent(`<div class="students-grid">${cards}</div>`);
+}
+function viewStudentNotebook(uid){_nbStudTab=uid;navigate('notebooks');document.querySelectorAll('.nav-item[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view==='notebooks'));}
+async function delStudent(id){
+  if(!confirm('🗑️ Remover este aluno e todos os seus dados?'))return;
+  const [tasks,nbEntries]=await Promise.all([fsGetAll('tasks',['owner','==',id]),fsGetAll('nb_entries',['owner','==',id])]);
+  const ops=[{type:'delete',col:'users',id},...tasks.map(t=>({type:'delete',col:'tasks',id:t.id})),...nbEntries.map(e=>({type:'delete',col:'nb_entries',id:e.id}))];
+  await fsBatch(ops); await renderStudents();
+}
+function editStudent(id){fsGet('users',id).then(s=>{if(!s)return;
+  showModal(`<div class="modal"><div class="modal-title">✏️ Editar Aluno — ${s.name}</div>
+    <div class="form-group"><label>📛 Nome Completo</label><input type="text" id="sName" value="${s.name}"></div>
+    <div class="form-group"><label>👤 Utilizador</label><input type="text" id="sUser" value="${s.username}"></div>
+    <div class="form-group"><label>🔒 Nova Senha (deixe vazio para manter)</label><input type="password" id="sPass" placeholder="Nova senha (opcional)"></div>
+    <div id="sErr" class="err-msg"></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveStudentEdit('${id}')">💾 Guardar</button></div></div>`);});}
+async function saveStudentEdit(id){
+  const name=document.getElementById('sName').value.trim();
+  const user=document.getElementById('sUser').value.trim().toLowerCase().replace(/\s+/g,'.');
+  const pass=document.getElementById('sPass').value.trim();
+  if(!name||!user){showErr('sErr','⚠️ Nome e utilizador são obrigatórios.');return;}
+  const snap=await FS.collection('users').where('username','==',user).limit(1).get();
+  if(!snap.empty&&snap.docs[0].id!==id){showErr('sErr','❌ Utilizador já em uso.');return;}
+  const update={name,username:user};
+  if(pass){if(pass.length<4){showErr('sErr','⚠️ Senha: mínimo 4 caracteres.');return;} update.passwordHash=await sha256(pass);}
+  await fsUpdate('users',id,update); closeModal(); await renderStudents();
+}
+function modalAddStudentDirect(){
+  showModal(`<div class="modal"><div class="modal-title">➕ Adicionar Aluno</div>
+    <div class="info-banner blue" style="margin-bottom:16px">📋 Crie as credenciais de acesso para o aluno. A senha é guardada de forma segura (SHA-256).</div>
+    <div class="form-group"><label>📛 Nome Completo</label><input type="text" id="sName" placeholder="Nome completo do aluno"></div>
+    <div class="form-group"><label>👤 Nome de Utilizador</label><input type="text" id="sUser" placeholder="nome.apelido"></div>
+    <div class="form-group"><label>🔒 Senha Inicial</label><input type="password" id="sPass" placeholder="Senha para o aluno"></div>
+    <div id="sErr" class="err-msg"></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveStudentDirect()">✅ Criar Conta</button></div></div>`);
+}
+async function saveStudentDirect(){
+  const name=document.getElementById('sName').value.trim();
+  const user=document.getElementById('sUser').value.trim().toLowerCase().replace(/\s+/g,'.');
+  const pass=document.getElementById('sPass').value.trim();
+  if(!name||!user||!pass){showErr('sErr','⚠️ Preencha todos os campos.');return;}
+  if(pass.length<4){showErr('sErr','⚠️ Senha: mínimo 4 caracteres.');return;}
+  const snap=await FS.collection('users').where('username','==',user).limit(1).get();
+  if(!snap.empty){showErr('sErr','❌ Utilizador já existe.');return;}
+  const hash=await sha256(pass);
+  const uid='std_'+genId();
+  await fsSet('users',uid,{id:uid,username:user,passwordHash:hash,name,role:'student'});
+  closeModal(); await renderStudents();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NOTEBOOKS — PROFESSOR VIEW
+// ═══════════════════════════════════════════════════════════════
+async function renderNotebooks() {
+  setActions(`<button class="btn btn-ghost btn-sm" onclick="exportNb(_nbStudTab||'')">📥 Exportar</button>`);
+  setLoading('Carregando cadernos...');
+  const students=await fsGetAll('users',['role','==','student']);
+  if(!students.length){setContent(`<div class="nb-empty"><div class="nb-empty-icon">👥</div><p>Nenhum aluno registado ainda.</p></div>`);return;}
+  if(!_nbStudTab||!students.find(s=>s.id===_nbStudTab)) _nbStudTab=students[0].id;
+  const entries=await getNbEntries(_nbStudTab);
+  entries.sort((a,b)=>b.ts-a.ts);
+  const owner=students.find(s=>s.id===_nbStudTab);
+  const tabs=students.map(s=>`<div class="stud-tab ${s.id===_nbStudTab?'active':''}" onclick="_switchNbTab('${s.id}')">${s.name.split(' ')[0]}</div>`).join('');
+  const html=entries.length?entries.map(e=>{
+    const imgHtml=e.type==='file'&&e.dataUrl&&e.fileType?.startsWith('image')?`<img src="${e.dataUrl}" class="nb-image" alt="Imagem">`
+      :e.type==='file'&&e.dataUrl?`<div style="padding:12px;background:var(--surface2);border-radius:var(--radius-sm);font-size:12px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border)"><span style="font-size:20px">📎</span>${e.fileName}</div>`:'';
+    return`<div class="nb-entry">
+      <div class="nb-entry-header"><div><span class="badge ${e.type==='file'?'badge-amber':'badge-blue'}">${e.type==='file'?'📎 Arquivo':'📝 Texto'}</span><span class="nb-meta" style="margin-left:9px">${fmtDT(e.ts)}</span></div></div>
+      ${e.title?`<div class="nb-title">📌 ${e.title}</div>`:''}
+      ${e.type==='text'?`<div class="nb-body">${escapeHtml(e.body)}</div>`:''}
+      ${imgHtml}
+      ${e.annotation?`<div class="nb-annotation">💡 ${escapeHtml(e.annotation)}</div>`:''}</div>`;}).join('')
+    :`<div class="nb-empty"><div class="nb-empty-icon">📓</div><p>Caderno sem entradas ainda.</p></div>`;
+  setContent(`
+    <div class="info-banner blue" style="margin-bottom:18px">👩‍🔬 Selecione um aluno para ver o caderno.</div>
+    <div class="stud-tabs">${tabs}</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)">
+      <div class="student-av" style="width:40px;height:40px;font-size:14px;margin:0">${owner?.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase()}</div>
+      <div><div style="font-size:15px;font-weight:800">${owner?.name}</div><div style="font-size:11px;color:var(--text-muted)">@${owner?.username} · ${entries.length} entrada(s)</div></div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="exportNb('${_nbStudTab}')">📥 Exportar PDF</button>
+    </div>${html}`);
+}
+function _switchNbTab(uid){_nbStudTab=uid;renderNotebooks();}
+
+// ═══════════════════════════════════════════════════════════════
+// NOTEBOOK — STUDENT OWN VIEW
+// ═══════════════════════════════════════════════════════════════
+async function renderNotebook(uid) {
+  const id=uid||CU.id; const isOwn=id===CU.id;
+  const owner=isOwn?CU:(await fsGet('users',id));
+  document.getElementById('topbarTitle').textContent=isOwn?'📓 Caderno de Laboratório':`📓 Caderno — ${owner?.name||'Aluno'}`;
+  setActions(isOwn?`<button class="btn btn-ghost btn-sm" onclick="exportNb('${id}')">📥 Exportar</button><button class="btn btn-primary btn-sm" onclick="modalAddEntry()">➕ Nova Entrada</button>`
+    :`<button class="btn btn-ghost btn-sm" onclick="navigate('students')">← Alunos</button><button class="btn btn-ghost btn-sm" onclick="exportNb('${id}')">📥 Exportar</button>`);
+  setLoading('Carregando caderno...');
+  const entries=(await getNbEntries(id)).sort((a,b)=>b.ts-a.ts);
+  const html=entries.length?entries.map(e=>{
+    const imgHtml=e.type==='file'&&e.dataUrl&&e.fileType?.startsWith('image')?`<img src="${e.dataUrl}" class="nb-image" alt="Imagem">`
+      :e.type==='file'&&e.dataUrl?`<div style="padding:12px;background:var(--surface2);border-radius:var(--radius-sm);font-size:12px;display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border)"><span style="font-size:20px">📎</span>${e.fileName}</div>`:'';
+    return`<div class="nb-entry">
+      <div class="nb-entry-header"><div><span class="badge ${e.type==='file'?'badge-amber':'badge-blue'}">${e.type==='file'?'📎 Arquivo':'📝 Texto'}</span><span class="nb-meta" style="margin-left:9px">${fmtDT(e.ts)}</span></div>
+        ${isOwn?`<button class="btn btn-danger btn-xs" onclick="delEntry('${e.id}')">🗑️</button>`:''}</div>
+      ${e.title?`<div class="nb-title">📌 ${e.title}</div>`:''}
+      ${e.type==='text'?`<div class="nb-body">${escapeHtml(e.body)}</div>`:''}
+      ${imgHtml}
+      ${e.annotation?`<div class="nb-annotation">💡 ${escapeHtml(e.annotation)}</div>`:''}</div>`;}).join('')
+    :`<div class="nb-empty"><div class="nb-empty-icon">📓</div><p>${isOwn?'📝 Caderno vazio. Adicione a primeira entrada!':'Caderno sem entradas ainda.'}</p></div>`;
+  setContent(html);
+}
+function modalAddEntry(){
+  _eTab='text';
+  showModal(`<div class="modal"><div class="modal-title">➕ Nova Entrada no Caderno</div>
+    <div class="tabs">
+      <div class="tab active" id="tabT" onclick="switchETab('text')">📝 Texto</div>
+      <div class="tab" id="tabF" onclick="switchETab('file')">📎 Imagem / PDF</div>
+    </div>
+    <div id="ePaneT">
+      <div class="form-group"><label>📌 Título (opcional)</label><input type="text" id="eTit" placeholder="Ex: Preparação do bigel – dia 3"></div>
+      <div class="form-group"><label>✍️ Anotação</label><textarea id="eBody" style="min-height:160px" placeholder="Procedimento, observações, resultados..."></textarea></div>
+    </div>
+    <div id="ePaneF" class="hidden">
+      <div class="form-group"><label>📌 Título (opcional)</label><input type="text" id="eTitF" placeholder="Ex: Microscopia óptica lote 1"></div>
+      <div class="info-banner amber">⚠️ Limite de ~750 KB por imagem (Firestore). Para ficheiros maiores, reduza a resolução.</div>
+      <div class="form-group"><label>📎 Arquivo / Imagem</label><input type="file" id="eFile" accept="image/*,.pdf"></div>
+      <div class="form-group"><label>💬 Anotação / Legenda</label><textarea id="eAnnot" placeholder="Descrição do arquivo..."></textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEntry()">💾 Guardar</button></div></div>`);
+}
+function switchETab(t){_eTab=t;
+  document.getElementById('tabT').classList.toggle('active',t==='text');
+  document.getElementById('tabF').classList.toggle('active',t==='file');
+  document.getElementById('ePaneT').classList.toggle('hidden',t!=='text');
+  document.getElementById('ePaneF').classList.toggle('hidden',t!=='file');}
+async function saveEntry(){
+  if(_eTab==='text'){
+    const body=document.getElementById('eBody').value.trim(); if(!body) return;
+    await fsAdd('nb_entries',{owner:CU.id,type:'text',title:document.getElementById('eTit').value.trim(),body,ts:Date.now()});
+    closeModal(); await renderNotebook();
+  }else{
+    const f=document.getElementById('eFile').files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=async ev=>{
+      if(ev.target.result.length>900000){alert('⚠️ Arquivo muito grande (>750KB). Reduza o tamanho.');return;}
+      await fsAdd('nb_entries',{owner:CU.id,type:'file',title:document.getElementById('eTitF').value.trim(),
+        dataUrl:ev.target.result,fileName:f.name,fileType:f.type,
+        annotation:document.getElementById('eAnnot').value.trim(),ts:Date.now()});
+      closeModal(); await renderNotebook();
+    };
+    rd.readAsDataURL(f);
+  }
+}
+function delEntry(id){if(!confirm('🗑️ Eliminar esta entrada?'))return; fsDel('nb_entries',id).then(()=>renderNotebook());}
+function exportNb(uid){_exportNb(uid||CU.id).catch(console.error);}
+async function _exportNb(uid){
+  const [owner,entries]=await Promise.all([uid===CU.id?Promise.resolve(CU):fsGet('users',uid),getNbEntries(uid)]);
+  entries.sort((a,b)=>a.ts-b.ts);
+  const body=entries.map(e=>`
+    <div style="border:1px solid #dde5ef;border-radius:12px;padding:22px;margin-bottom:18px;page-break-inside:avoid">
+      <div style="font-size:10px;color:#7a8fa8;font-family:monospace;margin-bottom:7px">${fmtDT(e.ts)} · ${e.type==='file'?'📎 Arquivo':'📝 Texto'}</div>
+      ${e.title?`<h3 style="margin:0 0 11px;font-size:16px;color:#0d1b2a">📌 ${e.title}</h3>`:''}
+      ${e.type==='text'?`<p style="white-space:pre-wrap;font-size:13px;line-height:1.7;color:#1a2a3a">${e.body}</p>`:''}
+      ${e.type==='file'&&e.dataUrl&&e.fileType?.startsWith('image')?`<img src="${e.dataUrl}" style="max-width:100%;border-radius:8px;margin:10px 0">`:''}
+      ${e.type==='file'&&!e.fileType?.startsWith('image')?`<p style="font-size:12px;color:#5a7089">📎 ${e.fileName}</p>`:''}
+      ${e.annotation?`<div style="border-left:3px solid #0fba72;padding:8px 14px;color:#5a7089;font-style:italic;font-size:12px;margin-top:10px;background:#d3f5e8;border-radius:0 6px 6px 0">💡 ${e.annotation}</div>`:''}
+    </div>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Caderno — ${owner?.name}</title>
+    <style>body{font-family:sans-serif;max-width:820px;margin:40px auto;padding:24px;color:#0d1b2a;background:#fff}@media print{.noprint{display:none}}</style>
+    </head><body>
+    <div style="border-bottom:3px solid #1a7fe8;padding-bottom:20px;margin-bottom:28px">
+      <h1 style="color:#0d1b2a;margin:0 0 5px;font-size:26px">🔬 Tech Release — Caderno de Lab</h1>
+      <p style="color:#5a7089;font-size:13px;margin:0">📛 ${owner?.name} · FCF USP · ${new Date().toLocaleDateString('pt-BR')}</p>
+      <button class="noprint" onclick="window.print()" style="margin-top:14px;padding:10px 22px;background:linear-gradient(135deg,#1a7fe8,#0fba72);color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">🖨️ Imprimir / Salvar PDF</button>
+    </div>${body||'<p style="color:#aaa">📭 Caderno sem entradas.</p>'}
+    </body></html>`;
+  const w=window.open('','_blank'); w.document.write(html); w.document.close();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROF NOTES
+// ═══════════════════════════════════════════════════════════════
+async function renderProfNotes(){
+  if(CU.role!=='professor') return;
+  setActions(`<button class="btn btn-primary btn-sm" onclick="modalAddProfNote()">📝 Nova Nota</button>`);
+  setLoading('Carregando notas...');
+  const notes=(await getProfNotes()).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return b.ts-a.ts;});
+  const html=notes.length?notes.map(n=>`
+    <div class="prof-note-card ${n.pinned?'pinned':''}">
+      <div class="pn-header">
+        <div class="flex-center gap-8"><span class="pn-pin">${n.pinned?'📌':'📄'}</span><span class="pn-title">${n.title||'Sem título'}</span></div>
+        <div class="flex-center gap-6"><span class="pn-meta">${fmtDate(n.ts)}</span>
+          <button class="btn btn-ghost btn-xs" onclick="togglePinNote('${n.id}')">${n.pinned?'📌':'📍'}</button>
+          <button class="btn btn-secondary btn-xs" onclick="modalEditProfNote('${n.id}')">✏️</button>
+          <button class="btn btn-danger btn-xs" onclick="delProfNote('${n.id}')">🗑️</button>
+        </div></div>
+      <div class="pn-body">${escapeHtml(n.body)}</div>
+      ${n.tags?`<div style="margin-top:10px;display:flex;gap:5px;flex-wrap:wrap">${n.tags.split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<span class="chip">#${t}</span>`).join('')}</div>`:''}</div>`).join('')
+    :`<div class="nb-empty"><div class="nb-empty-icon">📝</div><p>Nenhuma nota ainda.<br>Crie a sua primeira nota!</p></div>`;
+  setContent(`<div class="info-banner blue">📝 As suas notas pessoais — visíveis apenas para si.</div>${html}`);
+}
+function _pnForm(n={}){return`
+  <div class="form-group"><label>📌 Título (opcional)</label><input type="text" id="pnTitle" value="${n.title||''}" placeholder="Título da nota..."></div>
+  <div class="form-group"><label>✍️ Conteúdo</label><textarea id="pnBody" style="min-height:220px;font-size:14px;line-height:1.7" placeholder="Escreva aqui as suas notas...">${n.body||''}</textarea></div>
+  <div class="form-group"><label>🏷️ Tags (separadas por vírgula, opcional)</label><input type="text" id="pnTags" value="${n.tags||''}" placeholder="Ex: bigel, protocolo, reunião"></div>
+  <div class="form-group"><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;cursor:pointer"><input type="checkbox" id="pnPin" style="width:auto;flex-shrink:0" ${n.pinned?'checked':''}> 📌 Fixar esta nota no topo</label></div>`;}
+function modalAddProfNote(){showModal(`<div class="modal modal-lg"><div class="modal-title">📝 Nova Nota</div>${_pnForm()}
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProfNote()">💾 Guardar Nota</button></div></div>`);
+  setTimeout(()=>{const el=document.getElementById('pnBody');if(el)el.focus();},100);}
+async function saveProfNote(){
+  const title=document.getElementById('pnTitle').value.trim(); const body=document.getElementById('pnBody').value.trim();
+  if(!body&&!title){closeModal();return;}
+  await fsAdd('profnotes',{title,body,tags:document.getElementById('pnTags').value.trim(),pinned:document.getElementById('pnPin').checked,ts:Date.now()});
+  closeModal(); await renderProfNotes();
+}
+function modalEditProfNote(id){fsGet('profnotes',id).then(n=>{if(!n)return;
+  showModal(`<div class="modal modal-lg"><div class="modal-title">✏️ Editar Nota</div>${_pnForm(n)}
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEditProfNote('${id}')">💾 Guardar</button></div></div>`);
+  setTimeout(()=>{const el=document.getElementById('pnBody');if(el)el.focus();},100);});}
+async function saveEditProfNote(id){
+  await fsUpdate('profnotes',id,{title:document.getElementById('pnTitle').value.trim(),body:document.getElementById('pnBody').value.trim(),
+    tags:document.getElementById('pnTags').value.trim(),pinned:document.getElementById('pnPin').checked,updatedAt:Date.now()});
+  closeModal(); await renderProfNotes();
+}
+function togglePinNote(id){_togglePinNote(id).catch(console.error);}
+async function _togglePinNote(id){const n=await fsGet('profnotes',id);if(!n)return;await fsUpdate('profnotes',id,{pinned:!n.pinned});await renderProfNotes();}
+function delProfNote(id){if(!confirm('🗑️ Eliminar esta nota?'))return;fsDel('profnotes',id).then(renderProfNotes);}
+
+// ═══════════════════════════════════════════════════════════════
+// REQUESTS — Material em Falta
+// ═══════════════════════════════════════════════════════════════
+async function renderRequests(){
+  setActions(`<button class="btn btn-primary btn-sm" onclick="modalAddRequest()">📦 Registar Material em Falta</button>`);
+  setLoading('Carregando...');
+  const [reqs, allUsers]=await Promise.all([getRequests(),getUsers()]);
+  reqs.sort((a,b)=>b.ts-a.ts);
+  const pending=reqs.filter(r=>r.status==='pending');
+  const received=reqs.filter(r=>r.status==='received');
+  function reqCard(r){
+    const reporter=allUsers.find(u=>u.id===r.owner);
+    const isOwn=r.owner===CU.id; const isP=CU.role==='professor'; const isReceived=r.status==='received';
+    return`<div class="req-card ${isReceived?'req-received':''}">
+      <div class="req-card-body">
+        <div class="req-card-name">${isReceived?'✅':'📦'} ${r.reagent}</div>
+        <div class="req-card-meta">👤 ${reporter?.name||'?'} · 📅 ${fmtDate(r.ts)}${isReceived?` · <span style="color:var(--green);font-weight:700">Reposto em ${fmtDate(r.receivedAt)}</span>`:''}</div>
+        ${r.note?`<div class="req-card-note">💬 ${r.note}</div>`:''}</div>
+      <div class="flex gap-6" style="flex-shrink:0;flex-direction:column;align-items:flex-end">
+        ${isP&&!isReceived?`<button class="btn btn-green btn-sm" onclick="markReceived('${r.id}')">✅ Chegou</button>`:''}
+        ${(isP||isOwn)?`<button class="btn btn-danger btn-xs" onclick="delRequest('${r.id}')">🗑️</button>`:''}
+      </div></div>`;
+  }
+  setContent(`
+    <div class="info-banner blue">📦 Registe materiais em falta. A professora marca como "Chegou" quando o material chegar.</div>
+    <div class="card"><div class="card-title">📦 Em Falta <span class="badge badge-amber" style="margin-left:8px">${pending.length}</span></div>
+      ${pending.length?pending.map(reqCard).join(''):`<div class="text-center text-muted" style="padding:24px 0;font-size:13px">✅ Nenhum material em falta!</div>`}</div>
+    ${received.length?`<div class="card"><div class="card-title">✅ Já Recebidos</div>${received.map(reqCard).join('')}</div>`:''}`);
+}
+function modalAddRequest(){showModal(`<div class="modal"><div class="modal-title">📦 Registar Material em Falta</div>
+  <div class="form-group"><label>🧪 Nome do Material</label><input type="text" id="reqReagent" placeholder="Ex: Eudragit L100, NaCl, Glicerol..."></div>
+  <div class="form-group"><label>💬 Nota (opcional)</label><input type="text" id="reqNote" placeholder="Ex: Urgente para semana que vem, ~100g necessário..."></div>
+  <div id="reqErr" class="err-msg"></div>
+  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveRequest()">📤 Registar</button></div></div>`);}
+async function saveRequest(){
+  const reagent=document.getElementById('reqReagent').value.trim(); if(!reagent){showErr('reqErr','⚠️ Indique o nome do material.');return;}
+  await fsAdd('requests',{owner:CU.id,reagent,note:document.getElementById('reqNote').value.trim(),status:'pending',ts:Date.now()});
+  closeModal(); await renderRequests(); refreshBadge();
+}
+async function markReceived(id){await fsUpdate('requests',id,{status:'received',receivedAt:Date.now()});await renderRequests();refreshBadge();}
+function delRequest(id){if(!confirm('🗑️ Remover este registo?'))return;fsDel('requests',id).then(()=>{renderRequests();refreshBadge();});}
+
+// ═══════════════════════════════════════════════════════════════
+// INCIDENTS — Avarias
+// ═══════════════════════════════════════════════════════════════
+async function renderIncidents(){
+  setActions(`<button class="btn btn-primary btn-sm" onclick="modalAddIncident()">🔧 Reportar Avaria</button>`);
+  setLoading('Carregando...');
+  const [incs, allUsers]=await Promise.all([getIncidents(),getUsers()]);
+  incs.sort((a,b)=>{const stOrder={open:0,in_progress:1,resolved:2};if(stOrder[a.status]!==stOrder[b.status])return stOrder[a.status]-stOrder[b.status];return b.ts-a.ts;});
+  const open=incs.filter(i=>i.status!=='resolved');
+  const resolved=incs.filter(i=>i.status==='resolved');
+  function incCard(i){
+    const st=INC_STATUS[i.status]||INC_STATUS.open;
+    const reporter=allUsers.find(u=>u.id===i.reporter);
+    const isOwn=i.reporter===CU.id; const isP=CU.role==='professor';
+    return`<div class="inc-card ${st.cardCls}">
+      <div class="inc-header">
+        <div style="flex:1"><div class="inc-title">🔧 ${i.title}</div><div class="inc-meta">👤 ${reporter?.name||'?'} · 📅 ${fmtDate(i.ts)}</div></div>
+        <span class="badge ${st.cls}">${st.lbl}</span>
+      </div>
+      ${i.description?`<div class="inc-desc">${i.description}</div>`:''}
+      ${i.resolution?`<div class="inc-resolution">✅ Resolução: ${i.resolution}</div>`:''}
+      <div class="flex gap-6" style="margin-top:10px;flex-wrap:wrap">
+        ${isP&&i.status==='open'?`<button class="btn btn-secondary btn-xs" onclick="setIncStatus('${i.id}','in_progress')">🔧 A tratar</button>`:''}
+        ${isP&&i.status!=='resolved'?`<button class="btn btn-green btn-sm" onclick="resolveIncident('${i.id}')">✅ Resolvida</button>`:''}
+        ${(isP||isOwn)&&i.status!=='resolved'?`<button class="btn btn-danger btn-xs" onclick="delIncident('${i.id}')">🗑️</button>`:''}
+      </div></div>`;
+  }
+  setContent(`
+    <div class="info-banner blue">🔧 Reporte avarias ou equipamentos com problemas. A professora acompanha e resolve.</div>
+    <div class="card"><div class="card-title">🔓 Avarias Abertas / Em Tratamento <span class="badge badge-red" style="margin-left:8px">${open.length}</span></div>
+      ${open.length?open.map(incCard).join(''):`<div class="text-center text-muted" style="padding:24px 0;font-size:13px">✅ Nenhuma avaria em aberto!</div>`}</div>
+    ${resolved.length?`<div class="card"><div class="card-title">✅ Avarias Resolvidas</div>${resolved.map(incCard).join('')}</div>`:''}`);
+}
+function modalAddIncident(){
+  showModal(`<div class="modal"><div class="modal-title">🔧 Reportar Avaria</div>
+    <div class="form-group"><label>📌 Título / Equipamento</label><input type="text" id="incTitle" placeholder="Ex: Balança analítica, Estufa, HPLC..."></div>
+    <div class="form-group"><label>📝 Descrição do problema</label><textarea id="incDesc" placeholder="Descreva o problema com o máximo de detalhe possível..." style="min-height:100px"></textarea></div>
+    <div id="incErr" class="err-msg"></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveIncident()">📤 Reportar</button></div></div>`);
+}
+async function saveIncident(){
+  const title=document.getElementById('incTitle').value.trim();
+  if(!title){showErr('incErr','⚠️ Indique o título / equipamento.');return;}
+  await fsAdd('incidents',{reporter:CU.id,title,description:document.getElementById('incDesc').value.trim(),status:'open',ts:Date.now()});
+  closeModal(); await renderIncidents(); refreshBadge();
+}
+async function setIncStatus(id, status){
+  await fsUpdate('incidents',id,{status});
+  await renderIncidents(); refreshBadge();
+}
+function resolveIncident(id){
+  showModal(`<div class="modal"><div class="modal-title">✅ Marcar como Resolvida</div>
+    <div class="form-group"><label>📝 Descrição da resolução (opcional)</label><textarea id="resolutionTxt" placeholder="Como foi resolvido? Peça substituída, técnico chamado, etc..." style="min-height:100px"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-green" onclick="confirmResolve('${id}')">✅ Confirmar Resolução</button></div></div>`);
+}
+async function confirmResolve(id){
+  const resolution=document.getElementById('resolutionTxt').value.trim();
+  await fsUpdate('incidents',id,{status:'resolved',resolution,resolvedAt:Date.now()});
+  closeModal(); await renderIncidents(); refreshBadge();
+}
+function delIncident(id){if(!confirm('🗑️ Eliminar este registo de avaria?'))return;fsDel('incidents',id).then(()=>{renderIncidents();refreshBadge();});}
+
+// ═══════════════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
