@@ -401,7 +401,7 @@ hr.sep{border:none;border-top:1.5px solid var(--border);margin:18px 0}
     <nav class="sidebar-nav">
       <div class="nav-section">📋 Principal</div>
       <div class="nav-item active" data-view="dashboard" onclick="navigate('dashboard');closeSidebar()"><span class="nav-icon">🏠</span> Dashboard</div>
-      <div class="nav-item" data-view="reagents" onclick="navigate('reagents');closeSidebar()"><span class="nav-icon">⚗️</span> Reactivos</div>
+      <div class="nav-item" data-view="reagents" onclick="navigate('reagents');closeSidebar()"><span class="nav-icon">⚗️</span> Reagentes</div>
       <div class="nav-item" data-view="messages" onclick="navigate('messages');closeSidebar()"><span class="nav-icon">✉️</span> Mensagens<span class="nav-badge hidden" id="msgBadge"></span></div>
       <div class="nav-section">🛠️ Ferramentas</div>
       <div class="nav-item" data-view="calendar" onclick="navigate('calendar');closeSidebar()"><span class="nav-icon">📅</span> Calendário</div>
@@ -788,7 +788,7 @@ function closeSidebar()  { document.getElementById('sidebar').classList.remove('
 // NAVIGATION
 // ═══════════════════════════════════════════════════════════════
 const VIEW_TITLES = {
-  dashboard:'🏠 Dashboard', reagents:'⚗️ Inventário de Reactivos', messages:'✉️ Mensagens',
+  dashboard:'🏠 Dashboard', reagents:'⚗️ Inventário de Reagentes', messages:'✉️ Mensagens',
   calendar:'📅 Calendário', tasks:'✅ Tarefas', notebook:'📓 Caderno de Laboratório',
   students:'👥 Gestão de Alunos', notebooks:'📓 Cadernos dos Alunos',
   requests:'📦 Material em Falta', incidents:'🔧 Avarias', profnotes:'📝 Minhas Notas'
@@ -856,7 +856,7 @@ async function renderDash() {
   const stats = CU.role==='professor' ? `
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--blue),var(--green))"></div><div class="stat-emoji">👥</div><div class="stat-val" style="color:var(--blue)">${students.length}</div><div class="stat-lbl">Alunos registados</div></div>
-      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--amber),#e07b00)"></div><div class="stat-emoji">⚠️</div><div class="stat-val" style="color:var(--amber)">${lowStock}</div><div class="stat-lbl">Reactivos a verificar</div></div>
+      <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--amber),#e07b00)"></div><div class="stat-emoji">⚠️</div><div class="stat-val" style="color:var(--amber)">${lowStock}</div><div class="stat-lbl">Reagentes a verificar</div></div>
       <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--teal),#0097a7)"></div><div class="stat-emoji">📦</div><div class="stat-val" style="color:${pendingReqs>0?'var(--amber)':'var(--text-muted)'}">${pendingReqs}</div><div class="stat-lbl">Material em falta</div></div>
       <div class="stat-card"><div class="stat-card-accent" style="background:linear-gradient(90deg,var(--red),#c0392b)"></div><div class="stat-emoji">🔧</div><div class="stat-val" style="color:${openIncs>0?'var(--red)':'var(--text-muted)'}">${openIncs}</div><div class="stat-lbl">Avarias abertas</div></div>
     </div>` : `
@@ -912,7 +912,7 @@ function _cycleDash(id) { cycleMyTask(id).then(()=>renderDash()).catch(console.e
 // ═══════════════════════════════════════════════════════════════
 async function renderReagents() {
   setActions(`<button class="btn btn-primary btn-sm" onclick="modalAddR()">➕ Adicionar</button>`);
-  setLoading('Carregando reactivos...');
+  setLoading('Carregando reagentes...');
   const all = await getReagents();
   all.sort((a,b)=>(a.num||0)-(b.num||0));
   const classes = [...new Set(all.map(r=>r.cls))].sort();
